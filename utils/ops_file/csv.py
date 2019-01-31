@@ -43,7 +43,7 @@ def json_to_csv( d_path, r_path_f, e_path_f, header="", encode="uft-8" ):
     err = []
     for n in glob.glob( d_path ):
         if( 'err' in n ): continue
-        content = json.loads( open( n, 'r' ).read() )
+        content = json.loads( open( n, 'r', encoding=encode, errors='ignore' ).read() )
         if( not ops_data.empty_struct( content ) ):
             for e in content:
                 length = len( header.split( ',' ) )

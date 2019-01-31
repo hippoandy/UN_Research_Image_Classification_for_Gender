@@ -1,5 +1,6 @@
 
 __all__ = [
+    'find_numeric',
     'empty_struct',
     'invalid_val',
     'basic_cleaning',
@@ -9,6 +10,13 @@ __all__ = [
     'comma_to_hyphen',
     'is_numeric', 'numeric', 'make_numeric',
 ]
+
+# find the numeric value within a string
+def find_numeric( text ):
+    if( text == invalid_val() ): return invalid_val()
+    try:    return re.findall( r'\d+', text )[ 0 ]
+    # try:    return re.search( r'\d+', exp ).group( 0 )
+    except: return invalid_val()
 # check if struct is_empty
 def empty_struct( struct ):
     if struct: return False

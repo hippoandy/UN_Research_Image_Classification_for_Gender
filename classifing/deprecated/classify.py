@@ -10,8 +10,11 @@ sys.path.append( '..' )
 from utils import ops_file
 
 # module-level variables ##############################################################################################
-RETRAINED_LABELS_TXT_FILE_LOC = os.getcwd() + "/" + "retrained_labels.txt"
-RETRAINED_GRAPH_PB_FILE_LOC = os.getcwd() + "/" + "retrained_graph.pb"
+# RETRAINED_LABELS_TXT_FILE_LOC = os.getcwd() + "/" + "retrained_labels.txt"
+# RETRAINED_GRAPH_PB_FILE_LOC = os.getcwd() + "/" + "retrained_graph.pb"
+
+RETRAINED_LABELS_TXT_FILE_LOC = '/tmp/output_labels.txt'
+RETRAINED_GRAPH_PB_FILE_LOC = '/tmp/output_graph.pb'
 
 TEST_IMAGES_DIR = os.getcwd() + "/../imgs"
 
