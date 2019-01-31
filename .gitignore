@@ -104,11 +104,16 @@ venv.bak/
 .mypy_cache/
 
 # image
-.jpg
-.jpeg
-.gif
-.png
+*.jpg
+*.jpeg
+*.gif
+*.png
 
 # tensorflow
-.local
-.pb
+*.local
+*.pb
+
+# data
+*.json
+*.csv
+
