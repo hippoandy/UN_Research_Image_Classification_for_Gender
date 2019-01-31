@@ -1,0 +1,6 @@
+wget
+beautifulsoup4
+selenium
+selenium-requests
+html5lib
+opencv-python
