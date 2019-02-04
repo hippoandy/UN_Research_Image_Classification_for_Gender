@@ -90,7 +90,7 @@ if __name__ == "__main__":
     output_layer = "InceptionV3/Predictions/Reshape_1"
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--image_folder", required=True, help="dir of images")
+    parser.add_argument("--img_dir", required=True, help="dir of images")
     parser.add_argument("--data_file", required=True, help="images to be processed")
     parser.add_argument("--graph", help="graph/model to be executed")
     parser.add_argument("--labels", help="name of file containing labels")
@@ -106,8 +106,8 @@ if __name__ == "__main__":
         model_file = args.graph
     if args.data_file:
         data_file = args.data_file
-    if args.image_folder:
-        img_folder = args.image_folder
+    if args.img_dir:
+        img_folder = args.img_dir
     if args.labels:
         label_file = args.labels
     if args.input_height:
@@ -137,7 +137,6 @@ if __name__ == "__main__":
             for l in labels: header += '{},'.format( l )
             header += 'path'
 
-        print( '\n' )
         raw = ''
         for f in glob.glob( r'{}/{}'.format( img_folder, data_file ) ):
             graph = load_graph(model_file)
@@ -161,17 +160,16 @@ if __name__ == "__main__":
             top_k = results.argsort()[-5:][::-1]
 
             data = {}
-            print( f )
             for i in top_k:
                 print( labels[ i ], results[ i ] )
                 data[ labels[ i ] ] = results[ i ]
-            print( '------------------------------\n' )
 
             # create csv row
             row = "'" + ops_data.find_numeric( f ) + "',"
             for l in labels: row += '{},'.format( float(data[ l ]) )
             row += f + '\n'
             raw += row
+
         # commit to file
         rw.write_to_log_text( './result.csv', raw )
     else:
