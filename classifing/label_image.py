@@ -42,10 +42,9 @@ input_std = 255
 input_layer = "input"
 output_layer = "InceptionV3/Predictions/Reshape_1"
 
-concurrent = 1000
+concurrent = 10
 
 labels = []
-raw = ''
 # ------------------------------------------------------------ parameter settings
 
 def load_graph(model_file):
@@ -58,7 +57,6 @@ def load_graph(model_file):
         tf.import_graph_def(graph_def)
 
     return graph
-
 
 def read_tensor_from_image_file(file_name,
                                 input_height=299,
@@ -85,7 +83,6 @@ def read_tensor_from_image_file(file_name,
     result = sess.run(normalized)
 
     return result
-
 
 def load_labels(label_file):
     label = []
@@ -123,15 +120,17 @@ def work( f ):
     row = "'" + ops.find_numeric( f ) + "',"
     for l in labels: row += '{},'.format( float(data[ l ]) )
     row += f + '\n'
-    raw += row
+
+    return [ row ]
 
 # creates the worker class and performs action
-def trigger( files ):
+def trigger( header, files ):
     # create worker class
     W = worker( concurrent=concurrent )
     # run by multi-threaded worker
     W.init()
-    W.input( files ).work_with( work ).run()
+    W.input( files ).output( 'genderized', 'csv' )\
+        .output_header( header ).work_with( work ).run()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -170,9 +169,7 @@ if __name__ == "__main__":
             header += 'path'
 
         files = glob.glob( r'{}/{}'.format( img_folder, data_file ) )
-        trigger( files )
-        # commit to file
-        rw.write_to_log_text( '../result.csv', raw )
+        trigger( header, files )
     else:
         print( 'Image folder not specified!' )
         sys.exit( 1 )
