@@ -52,10 +52,10 @@ a sufficiently recent version of tensorflow, you can run the training with a
 command like this:
 
 ```bash
-python retrain.py --image_dir ~/flower_photos
+python retrain.py --img_dir ~/flower_photos
 ```
 
-You can replace the image_dir argument with any folder containing subfolders of
+You can replace the img_dir argument with any folder containing subfolders of
 images. The label for each image is taken from the name of the subfolder it's
 in.
 
@@ -74,14 +74,14 @@ For example:
 Run floating-point version of Mobilenet:
 
 ```bash
-python retrain.py --image_dir ~/flower_photos \
+python retrain.py --img_dir ~/flower_photos \
     --tfhub_module https://tfhub.dev/google/imagenet/mobilenet_v1_100_224/feature_vector/1
 ```
 
 Run Mobilenet, instrumented for quantization:
 
 ```bash
-python retrain.py --image_dir ~/flower_photos/ \
+python retrain.py --img_dir ~/flower_photos/ \
     --tfhub_module https://tfhub.dev/google/imagenet/mobilenet_v1_100_224/quantops/feature_vector/1
 ```
 
@@ -147,7 +147,7 @@ FAKE_QUANT_OPS = ('FakeQuantWithMinMaxVars',
                   'FakeQuantWithMinMaxVarsPerChannel')
 
 
-def create_image_lists(image_dir, testing_percentage, validation_percentage):
+def create_image_lists(img_dir, testing_percentage, validation_percentage):
   """Builds a list of training images from the file system.
 
   Analyzes the sub folders in the image directory, splits them into stable
@@ -155,7 +155,7 @@ def create_image_lists(image_dir, testing_percentage, validation_percentage):
   describing the lists of images for each label and their paths.
 
   Args:
-    image_dir: String path to a folder containing subfolders of images.
+    img_dir: String path to a folder containing subfolders of images.
     testing_percentage: Integer percentage of the images to reserve for tests.
     validation_percentage: Integer percentage of images reserved for validation.
 
@@ -164,11 +164,11 @@ def create_image_lists(image_dir, testing_percentage, validation_percentage):
     split into training, testing, and validation sets within each label.
     The order of items defines the class indices.
   """
-  if not tf.gfile.Exists(image_dir):
-    tf.logging.error("Image directory '" + image_dir + "' not found.")
+  if not tf.gfile.Exists(img_dir):
+    tf.logging.error("Image directory '" + img_dir + "' not found.")
     return None
   result = collections.OrderedDict()
-  sub_dirs = sorted(x[0] for x in tf.gfile.Walk(image_dir))
+  sub_dirs = sorted(x[0] for x in tf.gfile.Walk(img_dir))
   # The root directory comes first, so skip it.
   is_root_dir = True
   for sub_dir in sub_dirs:
@@ -179,11 +179,11 @@ def create_image_lists(image_dir, testing_percentage, validation_percentage):
                             for ext in ['JPEG', 'JPG', 'jpeg', 'jpg']))
     file_list = []
     dir_name = os.path.basename(sub_dir)
-    if dir_name == image_dir:
+    if dir_name == img_dir:
       continue
     tf.logging.info("Looking for images in '" + dir_name + "'")
     for extension in extensions:
-      file_glob = os.path.join(image_dir, dir_name, '*.' + extension)
+      file_glob = os.path.join(img_dir, dir_name, '*.' + extension)
       file_list.extend(tf.gfile.Glob(file_glob))
     if not file_list:
       tf.logging.warning('No files found')
@@ -233,7 +233,7 @@ def create_image_lists(image_dir, testing_percentage, validation_percentage):
   return result
 
 
-def get_image_path(image_lists, label_name, index, image_dir, category):
+def get_image_path(image_lists, label_name, index, img_dir, category):
   """Returns a path to an image for a label at the given index.
 
   Args:
@@ -241,7 +241,7 @@ def get_image_path(image_lists, label_name, index, image_dir, category):
     label_name: Label string we want to get an image for.
     index: Int offset of the image we want. This will be moduloed by the
     available number of images for the label, so it can be arbitrarily large.
-    image_dir: Root folder string of the subfolders containing the training
+    img_dir: Root folder string of the subfolders containing the training
     images.
     category: Name string of set to pull images from - training, testing, or
     validation.
@@ -262,7 +262,7 @@ def get_image_path(image_lists, label_name, index, image_dir, category):
   mod_index = index % len(category_list)
   base_name = category_list[mod_index]
   sub_dir = label_lists['dir']
-  full_path = os.path.join(image_dir, sub_dir, base_name)
+  full_path = os.path.join(img_dir, sub_dir, base_name)
   return full_path
 
 
@@ -350,13 +350,13 @@ def ensure_dir_exists(dir_name):
 
 
 def create_bottleneck_file(bottleneck_path, image_lists, label_name, index,
-                           image_dir, category, sess, jpeg_data_tensor,
+                           img_dir, category, sess, jpeg_data_tensor,
                            decoded_image_tensor, resized_input_tensor,
                            bottleneck_tensor):
   """Create a single bottleneck file."""
   tf.logging.info('Creating bottleneck at ' + bottleneck_path)
   image_path = get_image_path(image_lists, label_name, index,
-                              image_dir, category)
+                              img_dir, category)
   if not tf.gfile.Exists(image_path):
     tf.logging.fatal('File does not exist %s', image_path)
   image_data = tf.gfile.FastGFile(image_path, 'rb').read()
@@ -372,7 +372,7 @@ def create_bottleneck_file(bottleneck_path, image_lists, label_name, index,
     bottleneck_file.write(bottleneck_string)
 
 
-def get_or_create_bottleneck(sess, image_lists, label_name, index, image_dir,
+def get_or_create_bottleneck(sess, image_lists, label_name, index, img_dir,
                              category, bottleneck_dir, jpeg_data_tensor,
                              decoded_image_tensor, resized_input_tensor,
                              bottleneck_tensor, module_name):
@@ -387,7 +387,7 @@ def get_or_create_bottleneck(sess, image_lists, label_name, index, image_dir,
     label_name: Label string we want to get an image for.
     index: Integer offset of the image we want. This will be modulo-ed by the
     available number of images for the label, so it can be arbitrarily large.
-    image_dir: Root folder string of the subfolders containing the training
+    img_dir: Root folder string of the subfolders containing the training
     images.
     category: Name string of which set to pull images from - training, testing,
     or validation.
@@ -409,7 +409,7 @@ def get_or_create_bottleneck(sess, image_lists, label_name, index, image_dir,
                                         bottleneck_dir, category, module_name)
   if not os.path.exists(bottleneck_path):
     create_bottleneck_file(bottleneck_path, image_lists, label_name, index,
-                           image_dir, category, sess, jpeg_data_tensor,
+                           img_dir, category, sess, jpeg_data_tensor,
                            decoded_image_tensor, resized_input_tensor,
                            bottleneck_tensor)
   with open(bottleneck_path, 'r') as bottleneck_file:
@@ -422,7 +422,7 @@ def get_or_create_bottleneck(sess, image_lists, label_name, index, image_dir,
     did_hit_error = True
   if did_hit_error:
     create_bottleneck_file(bottleneck_path, image_lists, label_name, index,
-                           image_dir, category, sess, jpeg_data_tensor,
+                           img_dir, category, sess, jpeg_data_tensor,
                            decoded_image_tensor, resized_input_tensor,
                            bottleneck_tensor)
     with open(bottleneck_path, 'r') as bottleneck_file:
@@ -433,7 +433,7 @@ def get_or_create_bottleneck(sess, image_lists, label_name, index, image_dir,
   return bottleneck_values
 
 
-def cache_bottlenecks(sess, image_lists, image_dir, bottleneck_dir,
+def cache_bottlenecks(sess, image_lists, img_dir, bottleneck_dir,
                       jpeg_data_tensor, decoded_image_tensor,
                       resized_input_tensor, bottleneck_tensor, module_name):
   """Ensures all the training, testing, and validation bottlenecks are cached.
@@ -448,7 +448,7 @@ def cache_bottlenecks(sess, image_lists, image_dir, bottleneck_dir,
   Args:
     sess: The current active TensorFlow Session.
     image_lists: OrderedDict of training images for each label.
-    image_dir: Root folder string of the subfolders containing the training
+    img_dir: Root folder string of the subfolders containing the training
     images.
     bottleneck_dir: Folder string holding cached files of bottleneck values.
     jpeg_data_tensor: Input tensor for jpeg data from file.
@@ -467,7 +467,7 @@ def cache_bottlenecks(sess, image_lists, image_dir, bottleneck_dir,
       category_list = label_lists[category]
       for index, unused_base_name in enumerate(category_list):
         get_or_create_bottleneck(
-            sess, image_lists, label_name, index, image_dir, category,
+            sess, image_lists, label_name, index, img_dir, category,
             bottleneck_dir, jpeg_data_tensor, decoded_image_tensor,
             resized_input_tensor, bottleneck_tensor, module_name)
 
@@ -478,7 +478,7 @@ def cache_bottlenecks(sess, image_lists, image_dir, bottleneck_dir,
 
 
 def get_random_cached_bottlenecks(sess, image_lists, how_many, category,
-                                  bottleneck_dir, image_dir, jpeg_data_tensor,
+                                  bottleneck_dir, img_dir, jpeg_data_tensor,
                                   decoded_image_tensor, resized_input_tensor,
                                   bottleneck_tensor, module_name):
   """Retrieves bottleneck values for cached images.
@@ -495,7 +495,7 @@ def get_random_cached_bottlenecks(sess, image_lists, how_many, category,
     category: Name string of which set to pull from - training, testing, or
     validation.
     bottleneck_dir: Folder string holding cached files of bottleneck values.
-    image_dir: Root folder string of the subfolders containing the training
+    img_dir: Root folder string of the subfolders containing the training
     images.
     jpeg_data_tensor: The layer to feed jpeg image data into.
     decoded_image_tensor: The output of decoding and resizing the image.
@@ -518,9 +518,9 @@ def get_random_cached_bottlenecks(sess, image_lists, how_many, category,
       label_name = list(image_lists.keys())[label_index]
       image_index = random.randrange(MAX_NUM_IMAGES_PER_CLASS + 1)
       image_name = get_image_path(image_lists, label_name, image_index,
-                                  image_dir, category)
+                                  img_dir, category)
       bottleneck = get_or_create_bottleneck(
-          sess, image_lists, label_name, image_index, image_dir, category,
+          sess, image_lists, label_name, image_index, img_dir, category,
           bottleneck_dir, jpeg_data_tensor, decoded_image_tensor,
           resized_input_tensor, bottleneck_tensor, module_name)
       bottlenecks.append(bottleneck)
@@ -532,9 +532,9 @@ def get_random_cached_bottlenecks(sess, image_lists, how_many, category,
       for image_index, image_name in enumerate(
           image_lists[label_name][category]):
         image_name = get_image_path(image_lists, label_name, image_index,
-                                    image_dir, category)
+                                    img_dir, category)
         bottleneck = get_or_create_bottleneck(
-            sess, image_lists, label_name, image_index, image_dir, category,
+            sess, image_lists, label_name, image_index, img_dir, category,
             bottleneck_dir, jpeg_data_tensor, decoded_image_tensor,
             resized_input_tensor, bottleneck_tensor, module_name)
         bottlenecks.append(bottleneck)
@@ -544,7 +544,7 @@ def get_random_cached_bottlenecks(sess, image_lists, how_many, category,
 
 
 def get_random_distorted_bottlenecks(
-    sess, image_lists, how_many, category, image_dir, input_jpeg_tensor,
+    sess, image_lists, how_many, category, img_dir, input_jpeg_tensor,
     distorted_image, resized_input_tensor, bottleneck_tensor):
   """Retrieves bottleneck values for training images, after distortions.
 
@@ -560,7 +560,7 @@ def get_random_distorted_bottlenecks(
     how_many: The integer number of bottleneck values to return.
     category: Name string of which set of images to fetch - training, testing,
     or validation.
-    image_dir: Root folder string of the subfolders containing the training
+    img_dir: Root folder string of the subfolders containing the training
     images.
     input_jpeg_tensor: The input layer we feed the image data to.
     distorted_image: The output node of the distortion graph.
@@ -577,7 +577,7 @@ def get_random_distorted_bottlenecks(
     label_index = random.randrange(class_count)
     label_name = list(image_lists.keys())[label_index]
     image_index = random.randrange(MAX_NUM_IMAGES_PER_CLASS + 1)
-    image_path = get_image_path(image_lists, label_name, image_index, image_dir,
+    image_path = get_image_path(image_lists, label_name, image_index, img_dir,
                                 category)
     if not tf.gfile.Exists(image_path):
       tf.logging.fatal('File does not exist %s', image_path)
@@ -843,7 +843,7 @@ def run_final_eval(train_session, module_spec, class_count, image_lists,
       get_random_cached_bottlenecks(train_session, image_lists,
                                     FLAGS.test_batch_size,
                                     'testing', FLAGS.bottleneck_dir,
-                                    FLAGS.image_dir, jpeg_data_tensor,
+                                    FLAGS.img_dir, jpeg_data_tensor,
                                     decoded_image_tensor, resized_image_tensor,
                                     bottleneck_tensor, FLAGS.tfhub_module))
 
@@ -972,23 +972,23 @@ def main(_):
   # See https://github.com/tensorflow/tensorflow/issues/3047
   tf.logging.set_verbosity(tf.logging.INFO)
 
-  if not FLAGS.image_dir:
-    tf.logging.error('Must set flag --image_dir.')
+  if not FLAGS.img_dir:
+    tf.logging.error('Must set flag --img_dir.')
     return -1
 
   # Prepare necessary directories that can be used during training
   prepare_file_system()
 
   # Look at the folder structure, and create lists of all the images.
-  image_lists = create_image_lists(FLAGS.image_dir, FLAGS.testing_percentage,
+  image_lists = create_image_lists(FLAGS.img_dir, FLAGS.testing_percentage,
                                    FLAGS.validation_percentage)
   class_count = len(image_lists.keys())
   if class_count == 0:
-    tf.logging.error('No valid folders of images found at ' + FLAGS.image_dir)
+    tf.logging.error('No valid folders of images found at ' + FLAGS.img_dir)
     return -1
   if class_count == 1:
     tf.logging.error('Only one valid folder of images found at ' +
-                     FLAGS.image_dir +
+                     FLAGS.img_dir +
                      ' - multiple classes are needed for classification.')
     return -1
 
@@ -1027,7 +1027,7 @@ def main(_):
     else:
       # We'll make sure we've calculated the 'bottleneck' image summaries and
       # cached them on disk.
-      cache_bottlenecks(sess, image_lists, FLAGS.image_dir,
+      cache_bottlenecks(sess, image_lists, FLAGS.img_dir,
                         FLAGS.bottleneck_dir, jpeg_data_tensor,
                         decoded_image_tensor, resized_image_tensor,
                         bottleneck_tensor, FLAGS.tfhub_module)
@@ -1055,13 +1055,13 @@ def main(_):
         (train_bottlenecks,
          train_ground_truth) = get_random_distorted_bottlenecks(
              sess, image_lists, FLAGS.train_batch_size, 'training',
-             FLAGS.image_dir, distorted_jpeg_data_tensor,
+             FLAGS.img_dir, distorted_jpeg_data_tensor,
              distorted_image_tensor, resized_image_tensor, bottleneck_tensor)
       else:
         (train_bottlenecks,
          train_ground_truth, _) = get_random_cached_bottlenecks(
              sess, image_lists, FLAGS.train_batch_size, 'training',
-             FLAGS.bottleneck_dir, FLAGS.image_dir, jpeg_data_tensor,
+             FLAGS.bottleneck_dir, FLAGS.img_dir, jpeg_data_tensor,
              decoded_image_tensor, resized_image_tensor, bottleneck_tensor,
              FLAGS.tfhub_module)
       # Feed the bottlenecks and ground truth into the graph, and run a training
@@ -1089,7 +1089,7 @@ def main(_):
         validation_bottlenecks, validation_ground_truth, _ = (
             get_random_cached_bottlenecks(
                 sess, image_lists, FLAGS.validation_batch_size, 'validation',
-                FLAGS.bottleneck_dir, FLAGS.image_dir, jpeg_data_tensor,
+                FLAGS.bottleneck_dir, FLAGS.img_dir, jpeg_data_tensor,
                 decoded_image_tensor, resized_image_tensor, bottleneck_tensor,
                 FLAGS.tfhub_module))
         # Run a validation step and capture training summaries for TensorBoard
@@ -1143,7 +1143,7 @@ def main(_):
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument(
-      '--image_dir',
+      '--img_dir',
       type=str,
       default='',
       help='Path to folders of labeled images.'
