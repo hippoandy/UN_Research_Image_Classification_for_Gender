@@ -4,7 +4,7 @@ import glob, os
 from utils import ops_data, ops_file
 
 __all__ = [
-    'json_to_csv'
+    'json_to_csv', 'list_to_csv'
 ]
 
 # write the data from json to csv format file
@@ -67,6 +67,24 @@ def json_to_csv( d_path, r_path_f, e_path_f, header="", encode="uft-8" ):
         parent_dir_exist( e_path_f )
         ops_file.write_to_log_json( e_path_f, err )
     f.close()
+
+def list_to_csv( path, list_, header='', encode='utf-8' ):
+    ''' write json to current dir, path="out path", data="json serializable data" '''
+    parent = os.path.dirname( path )
+    if( not (os.path.exists( parent ) and os.path.isdir( parent )) ):
+        os.makedirs(parent)
+
+    def append_newline( f, text ):
+        if( '\n' not in text ): f.write( '\n' )
+
+    with open( path, 'w+', encoding=encode, errors='ignore' ) as f:
+        if( header != '' ):
+            f.write( header )
+            append_newline( f, header )
+        for l in list_:
+            f.write( l )
+            append_newline( f, l )
+        f.close()
 
 if __name__ == '__main__':
     pass
