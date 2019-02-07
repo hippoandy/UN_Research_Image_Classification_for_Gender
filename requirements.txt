@@ -6,3 +6,5 @@ html5lib
 opencv-python
 tensorflow_hub
 tensorflow
+pandas
+numpy
