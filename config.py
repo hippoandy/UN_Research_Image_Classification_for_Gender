@@ -10,6 +10,8 @@ base_url = 'https://www.freelancer.com/'
 f_cookie = 'cookies.pkl'
 
 concurrent = 5
+partition = 5
+timeout = 10
 
 sleep_short = 1
 sleep_med = 3
