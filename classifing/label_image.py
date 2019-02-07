@@ -42,12 +42,11 @@ input_std = 255
 input_layer = "input"
 output_layer = "InceptionV3/Predictions/Reshape_1"
 
-labels = []
-
 concurrent = 1000
-# ------------------------------------------------------------ parameter settings
 
+labels = []
 raw = ''
+# ------------------------------------------------------------ parameter settings
 
 def load_graph(model_file):
     graph = tf.Graph()
