@@ -15,7 +15,7 @@ class Scraper():
     ''' multi-threading scraper '''
     def __init__(self, name='scrape', concurrent=500, base='./data', \
                  timeout=30, parse_func=lambda res: res.text):
-        '''\
+        '''
             name: job name, prefix for all data files
             url_lst: all urls to scrape
             res_tmp_lst: temporarily holds response object for urls in url_lst
@@ -52,8 +52,7 @@ class Scraper():
         self.timeout = timeout
         self.job_finished = 0
 
-        # self.data_lst, self.scrape_err_lst, self.parse_err_lst = [], [], []
-        self._reset()
+        self.data_lst, self.scrape_err_lst, self.parse_err_lst, self.res_tmp_lst = [], [], [], []
 
         self._spawn_threads()
 
@@ -128,47 +127,19 @@ class Scraper():
         '''))
         self._reset()
 
-    # def run(self):
-    #     # TODO
-    #     self._spawn_threads()
-    #     # scrape
-    #     for url in self.url_lst:
-    #         self.job_queue.put(url)
-    #     job_queue.join()
-    #     # parse
-    #     self._parse()
-    #     self._ask_save()
-    #
-    # def _ask_save():
-    #     # TODO
-    #     print(f'len(res_tmp_lst): {len(res_tmp_lst)}')
-    #     print(f'len(scrape_err_lst): {len(res_tmp_lst)}')
-    #     usr_input = None
-    #     while not (usr_input == 'discard' or usr_input == 'save'):
-    #         usr_input = input('save this result? (discard/save)').strip()
-    #         if usr_input == 'discard':
-    #             break
-    #         elif usr_input == 'save':
-    #             write_to_json(f'{self.name}_data.json', self.data_lst)
-    #             write_to_json(f'{self.name}_scrape_err.json', self.scrape_err_lst)
-    #             write_to_json(f'{self.name}_parse_err.json', self.parse_err_lst)
-
     def _save(self):
         ''' save final data. data_lst, scrape_err_lst, parse_err_lst '''
         write_to_json(self.data_path, self.data_lst)
         write_to_json(self.scrape_err_path, self.scrape_err_lst)
         write_to_json(self.parse_err_path, self.parse_err_lst)
 
-    # def _save(self):
-    #     ''' dump final data. data_lst, scrape_err_lst, parse_err_lst '''
-    #     pickle.dump(self.data_lst, open('data_lst', 'wb'))
-    #     pickle.dump(self.scrape_err_path, open('scrape_err_path', 'wb'))
-    #     pickle.dump(self.parse_err_path, open('parse_err_path', 'wb'))
-
     def _reset(self):
         ''' reset all results, clean for another run '''
         # modified by Andy ----------
-        self.data_lst, self.scrape_err_lst, self.parse_err_lst, self.res_tmp_lst = [], [], [], []
+        self.data_lst.clear()
+        self.scrape_err_lst.clear()
+        self.parse_err_lst.clear()
+        self.res_tmp_lst.clear()
         # ---------- modified by Andy
 
     def _job(self):
@@ -212,29 +183,4 @@ class Scraper():
             print(f'parsing... {i}', end='\r')
 
 if __name__ == '__main__':
-    # sample for bumeran in Chile aka laborum
-    url_lst = []
-    url_base = 'https://www.laborum.cl/empleos-categoria-educacion-pagina-{}.html'
-    for pg_num in range(1, 101):
-        url_lst.append(url_base.format(pg_num))
-    # false case
-    url_lst.extend(['www', 'htt://www.google.com', 'https://www.gggempleos-categoria-.com'])
-
-    # example run once
-    # Scraper(name='job', concurrent=500, timeout=10)\
-    #     .urls_with(URL_LST)\
-    #     .parse_with(lambda res: res.status_code)\
-    #     .run_until_done()
-
-    # example partition
-    scraper = Scraper(concurrent=500, timeout=2)
-    scraper.name_with('job_part_1').urls_with(url_lst[:50])\
-     .parse_with(lambda res: [res.status_code]).run_until_done()
-    scraper.name_with('job_part_2').urls_with(url_lst[50:])\
-     .parse_with(lambda res: [res.status_code]).run_until_done()
-
-    # Scraper(name='bumeran_chile', concurrent=200, timeout=1)\
-    #     .urls(URL_LST).parse(lambda x: x.text).run_max_loop(max_loop=100)
-
-    # Scraper(name='bumeran_chile', concurrent=200, timeout=1)\
-    #     .urls(URL_LST).parse(lambda x: x.text).run_interactive()
+    pass
