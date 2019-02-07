@@ -6,8 +6,6 @@ import queue
 import textwrap
 from traceback import format_exc
 
-import wget
-
 __all__ = [ 'worker' ]
 
 # self-defined classes ---------------------------------------------
@@ -33,7 +31,7 @@ class worker():
         return self
     # set the data to be parsed
     def input( self, obj_list ):
-        if( not self.obj_list ): self.obj_list = obj_list
+        self.obj_list = obj_list
         return self
     # ignitiate the thread
     def run( self ):
