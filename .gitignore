@@ -120,4 +120,6 @@ tensorboard_logs/
 # data
 *.json
 *.csv
-
+*.7z
+*.zip
+*.tar
