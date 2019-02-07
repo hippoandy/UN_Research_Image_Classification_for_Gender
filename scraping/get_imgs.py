@@ -22,11 +22,14 @@ concurrent = config.concurrent
 timeout = config.timeout
 # ---------------------------------------- parameters
 
+errors = []
+
 # function to download the files
 def download( u ):
     if( 'unknown' in u ): return
     fname = re.search( r'[0-9]*.jpg$', u ).group( 0 )
-    urllib.request.urlretrieve( u, r'{}{}'.format( storage, fname ) )
+    try: urllib.request.urlretrieve( u, r'{}{}'.format( storage, fname ) )
+    except: errors.append( u )
 
 # creates the worker class and performs action
 def trigger( urls ):
@@ -37,6 +40,7 @@ def trigger( urls ):
         tail = (i + partition)
         if( tail >= len(urls) ): tail = len(urls)
         # run by multi-threaded worker
+        W.init()
         W.input( urls[ i:tail ] ).work_with( download ).run()
 
 # parse the pre-processed json files
@@ -99,3 +103,5 @@ if __name__ == '__main__':
         else: trigger( urls )
     # using the already exist json file to perform downloads
     else: trigger( parse_preprocess() )
+
+    if( not ops.empty_struct( errors) ): rw.write_to_json( r'{}{}'.format( path, 'errors.json' ), errors )
