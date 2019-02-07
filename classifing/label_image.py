@@ -28,7 +28,26 @@ import tensorflow as tf
 import os, glob, sys
 sys.path.append( '..' )
 from utils import ops_file as rw
-from utils import ops_data
+from utils import ops_data as ops
+from utils.ops_thread import worker
+
+# parameter settings ------------------------------------------------------------
+file_name = "tensorflow/examples/label_image/data/grace_hopper.jpg"
+model_file = "tensorflow/examples/label_image/data/inception_v3_2016_08_28_frozen.pb"
+label_file = "tensorflow/examples/label_image/data/imagenet_slim_labels.txt"
+input_height = 299
+input_width = 299
+input_mean = 0
+input_std = 255
+input_layer = "input"
+output_layer = "InceptionV3/Predictions/Reshape_1"
+
+labels = []
+
+concurrent = 1000
+# ------------------------------------------------------------ parameter settings
+
+raw = ''
 
 def load_graph(model_file):
     graph = tf.Graph()
@@ -77,17 +96,48 @@ def load_labels(label_file):
     return label
 
 
+def work( f ):
+    global raw
+
+    graph = load_graph(model_file)
+    t = read_tensor_from_image_file(
+        f,
+        input_height=input_height,
+        input_width=input_width,
+        input_mean=input_mean,
+        input_std=input_std)
+
+    input_name = "import/" + input_layer
+    output_name = "import/" + output_layer
+    input_operation = graph.get_operation_by_name(input_name)
+    output_operation = graph.get_operation_by_name(output_name)
+
+    with tf.Session(graph=graph) as sess:
+        results = sess.run(output_operation.outputs[0], {
+            input_operation.outputs[0]: t
+        })
+    results = np.squeeze(results)
+    top_k = results.argsort()[-5:][::-1]
+
+    data = {}
+    for i in top_k: data[ labels[ i ] ] = results[ i ]
+
+    # create csv row
+    row = "'" + ops.find_numeric( f ) + "',"
+    for l in labels: row += '{},'.format( float(data[ l ]) )
+    row += f + '\n'
+    raw += row
+
+# creates the worker class and performs action
+def trigger( files ):
+    # create worker class
+    W = worker( concurrent=concurrent )
+    # run by multi-threaded worker
+    W.init()
+    W.input( files ).work_with( work ).run()
+
 if __name__ == "__main__":
-    file_name = "tensorflow/examples/label_image/data/grace_hopper.jpg"
-    model_file = \
-        "tensorflow/examples/label_image/data/inception_v3_2016_08_28_frozen.pb"
-    label_file = "tensorflow/examples/label_image/data/imagenet_slim_labels.txt"
-    input_height = 299
-    input_width = 299
-    input_mean = 0
-    input_std = 255
-    input_layer = "input"
-    output_layer = "InceptionV3/Predictions/Reshape_1"
+    global raw
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--img_dir", required=True, help="dir of images")
@@ -102,76 +152,30 @@ if __name__ == "__main__":
     parser.add_argument("--output_layer", help="name of output layer")
     args = parser.parse_args()
 
-    if args.graph:
-        model_file = args.graph
-    if args.data_file:
-        data_file = args.data_file
-    if args.img_dir:
-        img_folder = args.img_dir
-    if args.labels:
-        label_file = args.labels
-    if args.input_height:
-        input_height = args.input_height
-    if args.input_width:
-        input_width = args.input_width
-    if args.input_mean:
-        input_mean = args.input_mean
-    if args.input_std:
-        input_std = args.input_std
-    if args.input_layer:
-        input_layer = args.input_layer
-    if args.output_layer:
-        output_layer = args.output_layer
+    if args.graph:          model_file = args.graph
+    if args.data_file:      data_file = args.data_file
+    if args.img_dir:        img_folder = args.img_dir
+    if args.labels:         label_file = args.labels
+    if args.input_height:   input_height = args.input_height
+    if args.input_width:    input_width = args.input_width
+    if args.input_mean:     input_mean = args.input_mean
+    if args.input_std:      input_std = args.input_std
+    if args.input_layer:    input_layer = args.input_layer
+    if args.output_layer:   output_layer = args.output_layer
 
     # the csv header
     header = ''
-
     if( os.path.isdir( img_folder ) and os.path.exists( img_folder ) ):
         # load the label
         labels = load_labels(label_file)
-        print( labels )
-
         # creating csv header
         if( header == '' ):
             header += 'id,'
             for l in labels: header += '{},'.format( l )
             header += 'path'
 
-        raw = ''
         files = glob.glob( r'{}/{}'.format( img_folder, data_file ) )
-        finished = 0
-        for f in files:
-            graph = load_graph(model_file)
-            t = read_tensor_from_image_file(
-                f,
-                input_height=input_height,
-                input_width=input_width,
-                input_mean=input_mean,
-                input_std=input_std)
-
-            input_name = "import/" + input_layer
-            output_name = "import/" + output_layer
-            input_operation = graph.get_operation_by_name(input_name)
-            output_operation = graph.get_operation_by_name(output_name)
-
-            with tf.Session(graph=graph) as sess:
-                results = sess.run(output_operation.outputs[0], {
-                    input_operation.outputs[0]: t
-                })
-            results = np.squeeze(results)
-            top_k = results.argsort()[-5:][::-1]
-
-            data = {}
-            for i in top_k: data[ labels[ i ] ] = results[ i ]
-
-            # create csv row
-            row = "'" + ops_data.find_numeric( f ) + "',"
-            for l in labels: row += '{},'.format( float(data[ l ]) )
-            row += f + '\n'
-            raw += row
-
-            print(f'process: {100 * finished / len(files):.2f}%', end='\r')
-
+        trigger( files )
         # commit to file
         rw.write_to_log_text( '../result.csv', raw )
     else:
