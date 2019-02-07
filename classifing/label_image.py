@@ -96,8 +96,6 @@ def load_labels(label_file):
 
 
 def work( f ):
-    global raw
-
     graph = load_graph(model_file)
     t = read_tensor_from_image_file(
         f,
@@ -136,8 +134,6 @@ def trigger( files ):
     W.input( files ).work_with( work ).run()
 
 if __name__ == "__main__":
-    global raw
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--img_dir", required=True, help="dir of images")
     parser.add_argument("--data_file", required=True, help="images to be processed")
