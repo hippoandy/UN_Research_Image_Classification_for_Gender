@@ -6,16 +6,25 @@ import queue
 import textwrap
 from traceback import format_exc
 
+import config
+from utils import ops_file as rw
+
 __all__ = [ 'worker' ]
 
 # self-defined classes ---------------------------------------------
 class worker():
     # constructor
-    def __init__( self, name='worker', timeout=10, concurrent=30 ):
+    def __init__( self, name='worker', timeout=10, concurrent=10 ):
         self.name = name
+        self.ext = ''
+        self.data_path = r'{}/{}'.format( config.path_data, name )
+        self.out_header = ''
+
         self.timeout = timeout
         self.concurrent = concurrent
         self.parse_funct = None
+
+        self.data_list = []
         self.obj_list = []
         self.job_queue = queue.Queue()
         self.lock = threading.Lock()
@@ -23,6 +32,7 @@ class worker():
         self._spawn()
 
     def init( self ):
+        self.data_list = []
         self.obj_list = []
         self.finished = 0
 
@@ -33,6 +43,20 @@ class worker():
     def input( self, obj_list ):
         self.obj_list = obj_list
         return self
+
+    def output( self, name, ext ):
+        self.name = name
+        self.ext = ext
+        self.data_path = r'{}/{}.{}'.format( config.path_data, self.name, self.ext )
+
+        return self
+
+    ''' set the output file header if needed
+    '''
+    def output_header( self, header ):
+        self.out_header = header
+        return self
+
     # ignitiate the thread
     def run( self ):
         print( textwrap.dedent( f'''
@@ -41,13 +65,17 @@ class worker():
         ''') )
         for obj in self.obj_list: self.job_queue.put( obj )
         self.job_queue.join()
+
+        # commit the results
+        rw.list_to_csv( self.data_path, self.data_list, header=self.out_header )
         print( 'finished!' )
+
     # things for the thread to do
     def _job( self ):
         while True:
             obj = self.job_queue.get()
             try:
-                self.parse_funct( obj )
+                self.data_list.extend( self.parse_funct( obj ) )
                 self.lock.acquire()
             except Exception as err:
                 print( str(err) )
