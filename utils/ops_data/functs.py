@@ -1,3 +1,6 @@
+import re
+
+
 
 __all__ = [
     'find_numeric',
@@ -15,7 +18,7 @@ __all__ = [
 def find_numeric( text ):
     if( text == invalid_val() ): return invalid_val()
     try:    return re.findall( r'\d+', text )[ 0 ]
-    # try:    return re.search( r'\d+', exp ).group( 0 )
+    # try:    return re.search( r'\d+', text ).group( 0 )
     except: return invalid_val()
 # check if struct is_empty
 def empty_struct( struct ):

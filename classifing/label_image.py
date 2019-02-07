@@ -138,7 +138,9 @@ if __name__ == "__main__":
             header += 'path'
 
         raw = ''
-        for f in glob.glob( r'{}/{}'.format( img_folder, data_file ) ):
+        files = glob.glob( r'{}/{}'.format( img_folder, data_file ) )
+        finished = 0
+        for f in files:
             graph = load_graph(model_file)
             t = read_tensor_from_image_file(
                 f,
@@ -160,9 +162,7 @@ if __name__ == "__main__":
             top_k = results.argsort()[-5:][::-1]
 
             data = {}
-            for i in top_k:
-                print( labels[ i ], results[ i ] )
-                data[ labels[ i ] ] = results[ i ]
+            for i in top_k: data[ labels[ i ] ] = results[ i ]
 
             # create csv row
             row = "'" + ops_data.find_numeric( f ) + "',"
@@ -170,8 +170,10 @@ if __name__ == "__main__":
             row += f + '\n'
             raw += row
 
+            print(f'process: {100 * finished / len(files):.2f}%', end='\r')
+
         # commit to file
-        rw.write_to_log_text( './result.csv', raw )
+        rw.write_to_log_text( '../result.csv', raw )
     else:
         print( 'Image folder not specified!' )
         sys.exit( 1 )
