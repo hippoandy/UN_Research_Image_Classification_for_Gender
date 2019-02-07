@@ -22,30 +22,34 @@ concurrent = config.concurrent
 timeout = config.timeout
 # ---------------------------------------- parameters
 
+# function to download the files
 def download( u ):
     if( 'unknown' in u ): return
     fname = re.search( r'[0-9]*.jpg$', u ).group( 0 )
     urllib.request.urlretrieve( u, r'{}{}'.format( storage, fname ) )
 
+# creates the worker class and performs action
 def trigger( urls ):
     # create worker class
     W = worker( concurrent=concurrent, timeout=timeout )
-    # for i in range( 0, len(urls), partition ):
-    #     if( i > len( urls) ): break
-    #     tail = (i + partition)
-    #     if( tail >= len(urls) ): tail = len(urls)
-    #     # run by multi-threaded worker
-    #     W.input( urls[ i:tail ] ).work_with( download ).run()
-    W.input( [ 'https://cdn6.f-cdn.com/ppic/114193491/logo/8756718/profile_logo_8756718.jpg' ] ).work_with( download ).run()
+    for i in range( 0, len(urls), partition ):
+        if( i > len( urls) ): break
+        tail = (i + partition)
+        if( tail >= len(urls) ): tail = len(urls)
+        # run by multi-threaded worker
+        W.input( urls[ i:tail ] ).work_with( download ).run()
 
-# download the img files throught the URLs stores in preprocessed json files
-def dl_by_preprocess():
+# parse the pre-processed json files
+def parse_preprocess():
     urls = []
     for n in glob.glob( r'{}{}'.format( path, f_urls ) ):
         tmp = json.loads( open( n, 'r' ).read() )
         if( not ops.empty_struct( tmp ) ): urls += tmp
     # starting the download
-    if( not ops.empty_struct( urls ) ): trigger( urls )
+    if( not ops.empty_struct( urls ) ): return urls
+    else:
+        print( 'No URLs to download, terminated the program......' )
+        sys.exit( 0 )
         
 # the main funcion
 if __name__ == '__main__':
@@ -94,4 +98,4 @@ if __name__ == '__main__':
         if( ops.empty_struct( urls ) ): print( 'No URLs to download, terminated the program......' )
         else: trigger( urls )
     # using the already exist json file to perform downloads
-    else: dl_by_preprocess()
+    else: trigger( parse_preprocess() )
