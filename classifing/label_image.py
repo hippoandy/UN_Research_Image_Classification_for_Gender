@@ -42,7 +42,7 @@ input_std = 255
 input_layer = "input"
 output_layer = "InceptionV3/Predictions/Reshape_1"
 
-concurrent = 50
+concurrent = 100
 
 labels = []
 # ------------------------------------------------------------ parameter settings
