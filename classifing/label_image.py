@@ -183,9 +183,9 @@ if __name__ == "__main__":
     def val_err_msg( opt_name, msg="Value Error for opt" ):
         parser.error( "\n\n{}: {}!".format( msg, opt_name ) )
 
-    if( args[ 'start' ] != None and args[ 'start' ] < 0 ): val_err_msg( '-s/--start' )
-    if( args[ 'concurrent' ] != None and args[ 'concurrent' ] <= 0 ): val_err_msg( '-c/--concurrent' )
-    if( args[ 'partition' ] != None and args[ 'partition' ] <= 0 ): val_err_msg( '-p/--partition' )
+    if( args.start != None and args,start < 0 ): val_err_msg( '-s/--start' )
+    if( args.concurrent != None and args.concurrent <= 0 ): val_err_msg( '-c/--concurrent' )
+    if( args.partition != None and args.partition <= 0 ): val_err_msg( '-p/--partition' )
 
     if args.graph:          graph = load_graph( args.graph )
     if args.data_file:      data_file = args.data_file
@@ -198,9 +198,9 @@ if __name__ == "__main__":
     if args.input_layer:    input_layer = args.input_layer
     if args.output_layer:   output_layer = args.output_layer
 
-    start = config.start if( args[ 'start' ] == None ) else args[ 'start' ]
-    partition = config.partition if( args[ 'partition' ] == None ) else args[ 'partition' ]
-    concurrent = config.concurrent if( args[ 'concurrent' ] == None ) else args[ 'concurrent' ]
+    start = config.start if( args.start == None ) else args.start
+    partition = config.partition if( args.partition == None ) else args.partition
+    concurrent = config.concurrent if( args.concurrent == None ) else args.concurrent
 
     # replace the statement at line 117 for better memory usage
     general_sess = tf.Session( graph=graph )
