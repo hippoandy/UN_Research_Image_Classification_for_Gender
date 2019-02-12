@@ -24,8 +24,11 @@ import argparse
 
 import numpy as np
 import tensorflow as tf
+import textwrap
+import time
 
 import os, glob, sys
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 sys.path.append( '..' )
 from utils import ops_file as rw
 from utils import ops_data as ops
@@ -34,6 +37,7 @@ from utils.ops_thread import worker
 # parameter settings ------------------------------------------------------------
 file_name = "tensorflow/examples/label_image/data/grace_hopper.jpg"
 model_file = "tensorflow/examples/label_image/data/inception_v3_2016_08_28_frozen.pb"
+graph = None
 label_file = "tensorflow/examples/label_image/data/imagenet_slim_labels.txt"
 input_height = 299
 input_width = 299
@@ -42,7 +46,9 @@ input_std = 255
 input_layer = "input"
 output_layer = "InceptionV3/Predictions/Reshape_1"
 
+start = 4760
 concurrent = 100
+partition = 100
 
 labels = []
 # ------------------------------------------------------------ parameter settings
@@ -93,7 +99,6 @@ def load_labels(label_file):
 
 
 def work( f ):
-    graph = load_graph(model_file)
     t = read_tensor_from_image_file(
         f,
         input_height=input_height,
@@ -119,7 +124,7 @@ def work( f ):
     # create csv row
     row = "'" + ops.find_numeric( f ) + "',"
     for l in labels: row += '{},'.format( float(data[ l ]) )
-    row += f + '\n'
+    row += f + '\n' # append the filename
 
     return [ row ]
 
@@ -127,10 +132,28 @@ def work( f ):
 def trigger( header, files ):
     # create worker class
     W = worker( concurrent=concurrent )
-    # run by multi-threaded worker
-    W.init()
-    W.input( files ).output( 'genderized', 'csv' )\
-        .output_header( header ).work_with( work ).run()
+
+    # timing
+    t_s = time.time()
+
+    for i in range( start, len(files), partition ):
+        if( i > len( files) ): break
+
+        tail = (i + partition)
+        if( tail >= len(files) ): tail = len(files)
+
+        print( textwrap.dedent( f'''
+            Status Report:
+                Remaining jobs: {len(files) - start - (i * partition)}
+                Percentage: {100 * (i * partition) / len(files):.2f}%
+                Executed for {time.time() - t_s} seconds
+        ''' ) )
+
+        # run by multi-threaded worker
+        W.init()
+        W.name_with( 'work_g_{}'.format( i ) )
+        W.input( files[i:tail] ).output( 'genderized_g_{}'.format( i ), 'csv' )\
+            .output_header( header ).work_with( work ).run()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -146,7 +169,7 @@ if __name__ == "__main__":
     parser.add_argument("--output_layer", help="name of output layer")
     args = parser.parse_args()
 
-    if args.graph:          model_file = args.graph
+    if args.graph:          graph = load_graph( args.graph )
     if args.data_file:      data_file = args.data_file
     if args.img_dir:        img_folder = args.img_dir
     if args.labels:         label_file = args.labels
