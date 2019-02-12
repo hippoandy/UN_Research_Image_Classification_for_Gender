@@ -11,7 +11,6 @@ from bs4 import BeautifulSoup
 
 import config
 from utilsDAWS import ops_data, ops_thread, ops_file
-import scrape
 
 # parameters ----------------------------------------
 ### Windows
