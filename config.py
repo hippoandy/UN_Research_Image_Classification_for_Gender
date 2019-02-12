@@ -9,6 +9,7 @@ base_url = 'https://www.freelancer.com/'
 # selenium settings ----------------------------------------
 f_cookie = 'cookies.pkl'
 
+start = 0
 concurrent = 20
 partition = 20
 timeout = 10
