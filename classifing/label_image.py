@@ -138,7 +138,7 @@ def work( f ):
 # creates the worker class and performs action
 def trigger( header, files ):
     # create worker class
-    W = worker( concurrent=concurrent )
+    W = worker( concurrent=concurrent, result_to_file=True )
 
     # timing
     t_s = time.time()
