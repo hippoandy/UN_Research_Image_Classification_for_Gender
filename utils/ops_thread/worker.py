@@ -36,9 +36,14 @@ class worker():
         self.obj_list = []
         self.finished = 0
 
+    def name_with( self, name ):
+        self.name = name
+        return self
+
     def work_with( self, funct ):
         self.parse_funct = funct
         return self
+
     # set the data to be parsed
     def input( self, obj_list ):
         self.obj_list = obj_list
@@ -60,8 +65,7 @@ class worker():
     # ignitiate the thread
     def run( self ):
         print( textwrap.dedent( f'''
-            Working on the given task......
-                Number of items: {len( self.obj_list )}
+            Worker initiated! Number of items: {len( self.obj_list )}
         ''') )
         for obj in self.obj_list: self.job_queue.put( obj )
         self.job_queue.join()
