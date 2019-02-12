@@ -144,8 +144,8 @@ def trigger( header, files ):
 
         print( textwrap.dedent( f'''
             Status Report:
-                Remaining jobs: {len(files) - start - (i * partition)}
-                Percentage: {100 * (i * partition) / len(files):.2f}%
+                Remaining jobs: {len(files) - i}
+                Percentage: {100 * i / len(files):.2f}%
                 Executed for {time.time() - t_s} seconds
         ''' ) )
 
