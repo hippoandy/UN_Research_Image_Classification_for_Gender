@@ -9,6 +9,7 @@ import config
 from utils import ops_file as rw
 from utils import ops_data as ops
 from utils.ops_thread import worker
+from utils.ops_log import logger
 
 # parameters ----------------------------------------
 path = config.path_data
@@ -22,14 +23,14 @@ concurrent = config.concurrent
 timeout = config.timeout
 # ---------------------------------------- parameters
 
-errors = []
+l = logger()
 
 # function to download the files
 def download( u ):
     if( 'unknown' in u ): return
     fname = re.search( r'[0-9]*.jpg$', u ).group( 0 )
     try: urllib.request.urlretrieve( u, r'{}{}'.format( storage, fname ) )
-    except: errors.append( u )
+    except: l.commit( type='error', msg=f'Failed to obtain: {u}' )
 
 # creates the worker class and performs action
 def trigger( urls ):
@@ -103,5 +104,3 @@ if __name__ == '__main__':
         else: trigger( urls )
     # using the already exist json file to perform downloads
     else: trigger( parse_preprocess() )
-
-    if( not ops.empty_struct( errors) ): rw.write_to_json( r'{}{}'.format( path, 'errors.json' ), errors )
