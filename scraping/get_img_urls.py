@@ -10,7 +10,9 @@ import json
 from bs4 import BeautifulSoup
 
 import config
-from utilsDAWS import ops_data, ops_thread, ops_file
+from utilsDAWS import ops_data as ops
+from utilsDAWS import ops_file as rw
+from utilsDAWS.ops_thread import worker
 
 # parameters ----------------------------------------
 ### Windows
@@ -46,10 +48,10 @@ def dump_cookies( driver ):
 
 def creat_zombie( c ):
     print( "Doing: {}".format( c ) )
-    c = ops_data.clean_str( c ).replace( ' ', '_' )
+    c = ops.clean_str( c ).replace( ' ', '_' )
 
     def log( c, u ):
-        ops_file.write_to_log_text( r'{}{}'.format( config.path_data, r'log_{}.txt'.format( c ) ), "{} stops at page {}".format( c, u ) )
+        rw.write_to_log_text( r'{}{}'.format( config.path_data, r'log_{}.txt'.format( c ) ), "{} stops at page {}".format( c, u ) )
 
     driver = Chrome( path_driver )
     # first load a page
@@ -75,7 +77,7 @@ def creat_zombie( c ):
             for e in imgs: tars.append( e[ 'src' ] )
 
     # commit the result to file
-    ops_file.write_to_json( r'{}{}'.format( config.path_data, 'imgs_{}.json'.format( c ) ), tars )
+    rw.write_to_json( r'{}{}'.format( config.path_data, 'imgs_{}.json'.format( c ) ), tars )
     # safely quit the driver
     driver.quit()
 
@@ -88,7 +90,7 @@ def operation( recreate ):
         time.sleep( config.sleep_med )
 
     ''' start to scrape the user profile pictures '''
-    worker = ops_thread.worker( concurrent=concurrent )
+    worker = worker( concurrent=concurrent, result_to_file=False )
     with open( config.path_countries, 'r' ) as f:
         countries = f.readlines()
 
