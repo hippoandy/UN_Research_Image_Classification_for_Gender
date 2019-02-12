@@ -30,14 +30,18 @@ import time
 import os, glob, sys
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 sys.path.append( '..' )
+import config
 from utils import ops_file as rw
 from utils import ops_data as ops
 from utils.ops_thread import worker
+
+from concurrent.futures import ThreadPoolExecutor
 
 # parameter settings ------------------------------------------------------------
 file_name = "tensorflow/examples/label_image/data/grace_hopper.jpg"
 model_file = "tensorflow/examples/label_image/data/inception_v3_2016_08_28_frozen.pb"
 graph = None
+general_sess = None
 label_file = "tensorflow/examples/label_image/data/imagenet_slim_labels.txt"
 input_height = 299
 input_width = 299
@@ -46,9 +50,9 @@ input_std = 255
 input_layer = "input"
 output_layer = "InceptionV3/Predictions/Reshape_1"
 
-start = 4760
-concurrent = 100
-partition = 100
+start = config.start
+concurrent = config.concurrent
+partition = config.concurrent
 
 labels = []
 # ------------------------------------------------------------ parameter settings
@@ -111,10 +115,13 @@ def work( f ):
     input_operation = graph.get_operation_by_name(input_name)
     output_operation = graph.get_operation_by_name(output_name)
 
-    with tf.Session(graph=graph) as sess:
-        results = sess.run(output_operation.outputs[0], {
-            input_operation.outputs[0]: t
-        })
+    # with tf.Session(graph=graph) as sess:
+        # results = sess.run(output_operation.outputs[0], {
+        #     input_operation.outputs[0]: t
+        # })
+    results = general_sess.run(output_operation.outputs[0], {
+        input_operation.outputs[0]: t
+    })
     results = np.squeeze(results)
     top_k = results.argsort()[-5:][::-1]
 
@@ -167,7 +174,18 @@ if __name__ == "__main__":
     parser.add_argument("--input_std", type=int, help="input std")
     parser.add_argument("--input_layer", help="name of input layer")
     parser.add_argument("--output_layer", help="name of output layer")
+
+    parser.add_argument( '-s', "--start", required=True, type=int, help="Index of data array to start operation" )
+    parser.add_argument( '-p', "--partition", required=True, type=int, help="Size of the group of input" )
+    parser.add_argument( '-c', "--concurrent", required=True, type=int, help="Number of threads" )
     args = parser.parse_args()
+
+    def val_err_msg( opt_name, msg="Value Error for opt" ):
+        parser.error( "\n\n{}: {}!".format( msg, opt_name ) )
+
+    if( args[ 'start' ] != None and args[ 'start' ] < 0 ): val_err_msg( '-s/--start' )
+    if( args[ 'concurrent' ] != None and args[ 'concurrent' ] <= 0 ): val_err_msg( '-c/--concurrent' )
+    if( args[ 'partition' ] != None and args[ 'partition' ] <= 0 ): val_err_msg( '-p/--partition' )
 
     if args.graph:          graph = load_graph( args.graph )
     if args.data_file:      data_file = args.data_file
@@ -179,6 +197,13 @@ if __name__ == "__main__":
     if args.input_std:      input_std = args.input_std
     if args.input_layer:    input_layer = args.input_layer
     if args.output_layer:   output_layer = args.output_layer
+
+    start = config.start if( args[ 'start' ] == None ) else args[ 'start' ]
+    partition = config.partition if( args[ 'partition' ] == None ) else args[ 'partition' ]
+    concurrent = config.concurrent if( args[ 'concurrent' ] == None ) else args[ 'concurrent' ]
+
+    # replace the statement at line 117 for better memory usage
+    general_sess = tf.Session( graph=graph )
 
     # the csv header
     header = ''
