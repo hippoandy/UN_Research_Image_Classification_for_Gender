@@ -44,25 +44,24 @@ class worker():
         self.parse_funct = funct
         return self
 
-    # set the data to be parsed
+    ''' set the data to be parsed '''
     def input( self, obj_list ):
         self.obj_list = obj_list
         return self
 
+    ''' set the output file path, name, and extension '''
     def output( self, name, ext ):
         self.name = name
         self.ext = ext
         self.data_path = r'{}/{}.{}'.format( config.path_data, self.name, self.ext )
-
         return self
 
-    ''' set the output file header if needed
-    '''
+    ''' set the output file header if needed '''
     def output_header( self, header ):
         self.out_header = header
         return self
 
-    # ignitiate the thread
+    ''' ignitiate '''
     def run( self ):
         print( textwrap.dedent( f'''
             Worker initiated! Number of items: {len( self.obj_list )}
@@ -74,7 +73,7 @@ class worker():
         rw.list_to_csv( self.data_path, self.data_list, header=self.out_header )
         print( 'finished!' )
 
-    # things for the thread to do
+    ''' things for the thread to do '''
     def _job( self ):
         while True:
             obj = self.job_queue.get()
@@ -89,7 +88,8 @@ class worker():
                 print(f'process: {100 * self.finished / len(self.obj_list):.2f}%', end='\r')
                 self.lock.release()
                 self.job_queue.task_done()
-    # creating the threads
+
+    ''' creating the threads '''
     def _spawn( self ):
         for _ in range( 0, self.concurrent ):
             t = threading.Thread( target=self._job )
