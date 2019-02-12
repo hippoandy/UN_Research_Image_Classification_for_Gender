@@ -1,1 +1,1 @@
-python label_image.py --graph=/tmp/output_graph.pb --labels=/tmp/output_labels.txt --input_layer=Placeholder --output_layer=final_result --img_dir=../imgs/ --data_file=*.jpg -s 0 -c 1000 -p 1000
+python label_image.py --graph=/tmp/output_graph.pb --labels=/tmp/output_labels.txt --input_layer=Placeholder --output_layer=final_result --img_dir=../imgs/ --data_file=*.jpg --start 0 --concurrent 1000 --partition 1000
