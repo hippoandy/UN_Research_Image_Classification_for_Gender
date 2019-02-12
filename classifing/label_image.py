@@ -175,15 +175,15 @@ if __name__ == "__main__":
     parser.add_argument("--input_layer", help="name of input layer")
     parser.add_argument("--output_layer", help="name of output layer")
 
-    parser.add_argument( '-s', "--start", required=True, type=int, help="Index of data array to start operation" )
-    parser.add_argument( '-p', "--partition", required=True, type=int, help="Size of the group of input" )
-    parser.add_argument( '-c', "--concurrent", required=True, type=int, help="Number of threads" )
+    parser.add_argument( "--start", required=True, type=int, help="Index of data array to start operation" )
+    parser.add_argument( "--partition", required=True, type=int, help="Size of the group of input" )
+    parser.add_argument( "--concurrent", required=True, type=int, help="Number of threads" )
     args = parser.parse_args()
 
     def val_err_msg( opt_name, msg="Value Error for opt" ):
         parser.error( "\n\n{}: {}!".format( msg, opt_name ) )
 
-    if( args.start != None and args,start < 0 ): val_err_msg( '-s/--start' )
+    if( args.start != None and args.start < 0 ): val_err_msg( '-s/--start' )
     if( args.concurrent != None and args.concurrent <= 0 ): val_err_msg( '-c/--concurrent' )
     if( args.partition != None and args.partition <= 0 ): val_err_msg( '-p/--partition' )
 
