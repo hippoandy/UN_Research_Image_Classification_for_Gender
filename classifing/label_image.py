@@ -31,9 +31,9 @@ import os, glob, sys
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 sys.path.append( '..' )
 import config
-from utils import ops_file as rw
-from utils import ops_data as ops
-from utils.ops_thread import worker
+from utilsDAWS import ops_file as rw
+from utilsDAWS import ops_data as ops
+from utilsDAWS.ops_thread import worker
 
 from concurrent.futures import ThreadPoolExecutor
 

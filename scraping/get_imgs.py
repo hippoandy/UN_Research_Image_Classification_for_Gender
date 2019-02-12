@@ -6,10 +6,10 @@ import argparse
 import sys
 sys.path.append( '..' )
 import config
-from utils import ops_file as rw
-from utils import ops_data as ops
-from utils.ops_thread import worker
-from utils.ops_log import logger
+from utilsDAWS import ops_file as rw
+from utilsDAWS import ops_data as ops
+from utilsDAWS.ops_thread import worker
+from utilsDAWS.ops_log import logger
 
 # parameters ----------------------------------------
 path = config.path_data

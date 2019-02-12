@@ -8,4 +8,4 @@ tensorflow_hub
 tensorflow
 pandas
 numpy
-logging
+git+https://github.com/hippoandy/Utils_Data_Analysis_Python
