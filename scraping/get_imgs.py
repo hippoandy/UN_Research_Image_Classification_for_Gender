@@ -35,7 +35,7 @@ def download( u ):
 # creates the worker class and performs action
 def trigger( urls ):
     # create worker class
-    W = worker( concurrent=concurrent, timeout=timeout )
+    W = worker( concurrent=concurrent, timeout=timeout, result_to_file=False )
     for i in range( 0, len(urls), partition ):
         if( i > len( urls) ): break
         tail = (i + partition)
