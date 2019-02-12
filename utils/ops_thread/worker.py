@@ -14,7 +14,7 @@ __all__ = [ 'worker' ]
 # self-defined classes ---------------------------------------------
 class worker():
     # constructor
-    def __init__( self, name='worker', timeout=10, concurrent=10 ):
+    def __init__( self, name='worker', timeout=10, concurrent=10, result_to_file=False ):
         self.name = name
         self.ext = ''
         self.data_path = r'{}/{}'.format( config.path_data, name )
@@ -23,6 +23,7 @@ class worker():
         self.timeout = timeout
         self.concurrent = concurrent
         self.parse_funct = None
+        self.result_to_file = result_to_file
 
         self.data_list = []
         self.obj_list = []
@@ -69,8 +70,9 @@ class worker():
         for obj in self.obj_list: self.job_queue.put( obj )
         self.job_queue.join()
 
-        # commit the results
-        rw.list_to_csv( self.data_path, self.data_list, header=self.out_header )
+        if( self.result_to_file ): 
+            # commit the results
+            rw.list_to_csv( self.data_path, self.data_list, header=self.out_header )
         print( 'finished!' )
 
     ''' things for the thread to do '''
@@ -78,7 +80,8 @@ class worker():
         while True:
             obj = self.job_queue.get()
             try:
-                self.data_list.extend( self.parse_funct( obj ) )
+                if( self.result_to_file ): self.data_list.extend( self.parse_funct( obj ) )
+                else: self.parse_funct( obj )
                 self.lock.acquire()
             except Exception as err:
                 print( str(err) )
