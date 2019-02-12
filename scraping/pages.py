@@ -18,7 +18,6 @@ sys.path.append( '..' )
 import config
 
 from utilsDAWS import ops_data, ops_thread, ops_file
-import scrape
 
 # url = config.base_url + 'freelancers/{}/all/{}'
 url = config.base_url + 'search/users/any_skill/{}/{}/'
