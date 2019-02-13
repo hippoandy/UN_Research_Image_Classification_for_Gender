@@ -5,7 +5,6 @@ import os
 
 import sys
 sys.path.append("..")
-
 import config
 
 # parameters ------------------------------------------------------
