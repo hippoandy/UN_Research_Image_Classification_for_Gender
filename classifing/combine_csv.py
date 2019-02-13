@@ -1,7 +1,7 @@
-import csv, glob
 import pandas as pd
 import argparse
-import os
+
+from utilsDAWS import ops_file as rw
 
 import sys
 sys.path.append("..")
@@ -13,18 +13,6 @@ f_data = r"*.csv"                      # data filename pattern
 f_result = r"combined.csv"
 encoding_f = 'utf-8'
 # ------------------------------------------------------ parameters
-
-def operation():
-    list_ = []
-    for n in glob.glob( r'{}{}'.format( path, f_data ) ):
-        if( 'err' in str(n) ): continue # prevent from reading the log files
-
-        df = pd.read_csv( n, header=0, encoding=encoding_f )
-        list_.append( df )
-
-    df = pd.concat( list_, axis=0, ignore_index=True )
-    df = df.drop( columns=[ 'path' ] )
-    df.to_csv( '{}{}'.format( path, f_result ), encoding=encoding_f, index=False )
 
 # the main function
 if __name__ == '__main__':
@@ -40,9 +28,4 @@ if __name__ == '__main__':
     f_data = f_data if( args[ 'data' ] == None ) else args[ 'data' ]
     f_result = f_result if( args[ 'output' ] == None ) else args[ 'output' ]
 
-    # delete old combined result data
-    pre = r'{}{}'.format( path, f_result )
-    if( os.path.isfile( pre ) ): os.remove( pre )
-
-    # start the operation
-    operation()
+    rw.combine_csv_files( dir_files=path, files=f_data, dir_result=path, result=f_result, encode=encoding_f )
