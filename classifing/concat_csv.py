@@ -28,4 +28,4 @@ if __name__ == '__main__':
     f_data = f_data if( args[ 'data' ] == None ) else args[ 'data' ]
     f_result = f_result if( args[ 'output' ] == None ) else args[ 'output' ]
 
-    rw.combine_csv_files( dir_files=path, files=f_data, dir_result=path, result=f_result, encode=encoding_f )
+    rw.concat_csv_files( dir_files=path, files=f_data, dir_result=path, result=f_result, encode=encoding_f )
