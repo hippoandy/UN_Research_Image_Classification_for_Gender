@@ -1,6 +1,6 @@
 from utilsDAWS import value as val
 from utilsDAWS import rw
-from utilsDAWS.thread import worker
+from utilsDAWS.thread import work
 
 from seleniumrequests import Chrome
 from bs4 import BeautifulSoup
@@ -89,7 +89,7 @@ def operation( recreate ):
         time.sleep( config.sleep_med )
 
     ''' start to scrape the user profile pictures '''
-    worker = worker( concurrent=concurrent, result_to_file=False )
+    worker = work.worker( concurrent=concurrent, result_to_file=False )
     with open( config.path_countries, 'r' ) as f:
         countries = f.readlines()
 

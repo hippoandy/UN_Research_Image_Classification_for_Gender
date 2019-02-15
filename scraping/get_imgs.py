@@ -1,6 +1,6 @@
-from utilsDAWS import store
+from utilsDAWS import folder
 from utilsDAWS import value as val
-from utilsDAWS.thread import worker
+from utilsDAWS.thread import work
 from utilsDAWS.log import logger
 
 import urllib.request
@@ -37,7 +37,7 @@ def download( u ):
 # creates the worker class and performs action
 def trigger( urls ):
     # create worker class
-    W = worker( concurrent=concurrent, timeout=timeout, result_to_file=False )
+    W = work.worker( concurrent=concurrent, timeout=timeout, result_to_file=False )
     for i in range( 0, len(urls), partition ):
         if( i > len( urls) ): break
         tail = (i + partition)
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     ### setting the parameters
     # create storage folder if not exist
     storage = r'{}{}'.format( '../', mid_path )
-    store.mkdir_p( storage )
+    folder.mkdir_p( storage )
     # if not specified by user, use the default value
     partition = config.partition if( args[ 'partition' ] == None ) else args[ 'partition' ]
     concurrent = config.concurrent if( args[ 'concurrent' ] == None ) else args[ 'concurrent' ]

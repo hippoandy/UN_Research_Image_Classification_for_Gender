@@ -17,7 +17,7 @@
 # ==============================================================================
 
 from utilsDAWS import value as val
-from utilsDAWS.thread import worker
+from utilsDAWS.thread import work
 
 from __future__ import absolute_import
 from __future__ import division
@@ -138,7 +138,7 @@ def work( f ):
 # creates the worker class and performs action
 def trigger( header, files ):
     # create worker class
-    W = worker( concurrent=concurrent, result_to_file=True )
+    W = work.worker( concurrent=concurrent, result_to_file=True )
 
     # timing
     t_s = time.time()
