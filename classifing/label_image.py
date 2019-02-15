@@ -102,7 +102,7 @@ def load_labels(label_file):
     return label
 
 
-def work( f ):
+def process( f ):
     t = read_tensor_from_image_file(
         f,
         input_height=input_height,
@@ -137,30 +137,10 @@ def work( f ):
 
 # creates the worker class and performs action
 def trigger( header, files ):
-    # create worker class
-    W = work.worker( concurrent=concurrent, result_to_file=True )
-
-    # timing
-    t_s = time.time()
-
-    for i in range( start, len(files), partition ):
-        if( i > len( files) ): break
-
-        tail = (i + partition)
-        if( tail >= len(files) ): tail = len(files)
-
-        print( textwrap.dedent( f'''
-            Status Report:
-                Remaining jobs: {len(files) - i}
-                Percentage: {100 * i / len(files):.2f}%
-                Executed for {time.time() - t_s} seconds
-        ''' ) )
-
-        # run by multi-threaded worker
-        W.init()
-        W.name_with( 'work_g_{}'.format( i ) )
-        W.input( files[i:tail] ).output( 'genderized_g_{}'.format( i ), 'csv' )\
-            .output_header( header ).work_with( work ).run()
+    work.trigger_worker( in_chunk=True,\
+        data=files, work_funct=process, result_to_file=True,
+        output_name='genderized', output_type='csv', output_header=header, \
+        concurrent=concurrent, partition=partition )
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
