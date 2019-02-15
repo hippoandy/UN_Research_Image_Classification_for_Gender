@@ -34,15 +34,9 @@ def download( u ):
 
 # creates the worker class and performs action
 def trigger( urls ):
-    # create worker class
-    W = work.worker( concurrent=concurrent, timeout=timeout, result_to_file=False )
-    for i in range( 0, len(urls), partition ):
-        if( i > len( urls) ): break
-        tail = (i + partition)
-        if( tail >= len(urls) ): tail = len(urls)
-        # run by multi-threaded worker
-        W.init()
-        W.input( urls[ i:tail ] ).work_with( download ).run()
+    work.trigger_worker( in_chunk=True,\
+        data=urls, work_funct=download, result_to_file=False,
+        concurrent=concurrent, partition=partition, timeout=timeout )
 
 def parse_file( pattern ):
     urls = []

@@ -89,19 +89,10 @@ def operation( recreate ):
         time.sleep( config.sleep_med )
 
     ''' start to scrape the user profile pictures '''
-    worker = work.worker( concurrent=concurrent, result_to_file=False )
-    with open( config.path_countries, 'r' ) as f:
-        countries = f.readlines()
-
-        # create the worker object
-        for i in range( 0, len( countries ), concurrent ):
-            if( i > len( countries ) ): break
-
-            tail = (i + concurrent)
-            if( tail >= len( countries ) ): tail = len( countries )
-
-            worker.init()
-            worker.work_with( creat_zombie ).input( countries[ i:tail ] ).run()
+    countries = open( config.path_countries, 'r' ).readlines()
+    work.trigger_worker( in_chunk=True,\
+        data=countries, work_funct=creat_zombie, result_to_file=False,
+        concurrent=concurrent, partition=partition, timeout=timeout )
 
 # the main funcion
 if __name__ == '__main__':
