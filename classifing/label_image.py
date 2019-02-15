@@ -16,6 +16,9 @@
 # limitations under the License.
 # ==============================================================================
 
+from utilsDAWS import value as val
+from utilsDAWS.thread import worker
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -31,9 +34,6 @@ import os, glob, sys
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 sys.path.append( '..' )
 import config
-from utilsDAWS import ops_file as rw
-from utilsDAWS import ops_data as ops
-from utilsDAWS.ops_thread import worker
 
 from concurrent.futures import ThreadPoolExecutor
 
@@ -129,7 +129,7 @@ def work( f ):
     for i in top_k: data[ labels[ i ] ] = results[ i ]
 
     # create csv row
-    row = "'" + ops.find_numeric( f ) + "',"
+    row = "'" + val.find_numeric( f ) + "',"
     for l in labels: row += '{},'.format( float(data[ l ]) )
     row += f + '\n' # append the filename
 

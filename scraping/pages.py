@@ -1,3 +1,6 @@
+from utilsDAWS import value as val
+from utilsDAWS import rw
+
 # from selenium import webdriver
 from seleniumrequests import Chrome
 from bs4 import BeautifulSoup
@@ -9,9 +12,6 @@ import json
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-
-from utilsDAWS import ops_data as ops
-from utilsDAWS import ops_file as rw
 
 import sys
 sys.path.append( '..' )
@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
         for c in countries:
             urls = []
-            c = ops.clean_str( c )
+            c = val.clean_str( c )
             for i in range( 1, limit ):
                 c = c.replace( ' ', '_' )
                 urls.append( url.format( c.lower(), i ) )

@@ -1,3 +1,8 @@
+from utilsDAWS import store
+from utilsDAWS import value as val
+from utilsDAWS.thread import worker
+from utilsDAWS.log import logger
+
 import urllib.request
 import os, glob
 import json, re, textwrap
@@ -6,11 +11,6 @@ import argparse
 import sys
 sys.path.append( '..' )
 import config
-
-from utilsDAWS import ops_file as rw
-from utilsDAWS import ops_data as ops
-from utilsDAWS.ops_thread import worker
-from utilsDAWS.ops_log import logger
 
 # parameters ----------------------------------------
 path = config.path_data
@@ -52,7 +52,7 @@ def parse_file( pattern ):
         for l in content:
             try:    url = re.findall( r'https?://(?:[-\w.\/]|(?:%[\da-fA-F]{2}))+', l )[ 0 ]
             except: continue
-            urls.append( ops.clean_str( url ) )
+            urls.append( val.clean_str( url ) )
     return urls
 
 # the main funcion
@@ -78,7 +78,7 @@ if __name__ == '__main__':
     log = logger( fname=args[ 'log_file' ] )
     # create storage folder if not exist
     storage = r'{}{}'.format( '../', mid_path )
-    rw.mkdir_p( storage )
+    store.mkdir_p( storage )
     # if not specified by user, use the default value
     partition = config.partition if( args[ 'partition' ] == None ) else args[ 'partition' ]
     concurrent = config.concurrent if( args[ 'concurrent' ] == None ) else args[ 'concurrent' ]

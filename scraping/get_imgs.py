@@ -1,15 +1,17 @@
+from utilsDAWS import store
+from utilsDAWS import value as val
+from utilsDAWS.thread import worker
+from utilsDAWS.log import logger
+
 import urllib.request
 import os, glob
 import json, re, textwrap
 import pandas as pd
 import argparse
+
 import sys
 sys.path.append( '..' )
 import config
-from utilsDAWS import ops_file as rw
-from utilsDAWS import ops_data as ops
-from utilsDAWS.ops_thread import worker
-from utilsDAWS.ops_log import logger
 
 # parameters ----------------------------------------
 path = config.path_data
@@ -49,9 +51,9 @@ def parse_preprocess():
     urls = []
     for n in glob.glob( r'{}{}'.format( path, f_urls ) ):
         tmp = json.loads( open( n, 'r' ).read() )
-        if( not ops.empty_struct( tmp ) ): urls += tmp
+        if( not val.empty_struct( tmp ) ): urls += tmp
     # starting the download
-    if( not ops.empty_struct( urls ) ): return urls
+    if( not val.empty_struct( urls ) ): return urls
     else:
         print( 'No URLs to download, terminated the program......' )
         sys.exit( 0 )
@@ -77,7 +79,7 @@ if __name__ == '__main__':
     ### setting the parameters
     # create storage folder if not exist
     storage = r'{}{}'.format( '../', mid_path )
-    rw.mkdir_p( storage )
+    store.mkdir_p( storage )
     # if not specified by user, use the default value
     partition = config.partition if( args[ 'partition' ] == None ) else args[ 'partition' ]
     concurrent = config.concurrent if( args[ 'concurrent' ] == None ) else args[ 'concurrent' ]
@@ -100,7 +102,7 @@ if __name__ == '__main__':
             '''))
             sys.exit( 1 )
         if( not df_all.empty ): urls = df[ 'profile_logo' ].tolist()
-        if( ops.empty_struct( urls ) ): print( 'No URLs to download, terminated the program......' )
+        if( val.empty_struct( urls ) ): print( 'No URLs to download, terminated the program......' )
         else: trigger( urls )
     # using the already exist json file to perform downloads
     else: trigger( parse_preprocess() )

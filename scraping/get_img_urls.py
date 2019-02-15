@@ -1,18 +1,17 @@
+from utilsDAWS import value as val
+from utilsDAWS import rw
+from utilsDAWS.thread import worker
+
 from seleniumrequests import Chrome
+from bs4 import BeautifulSoup
 import pickle
+import os, time
+import argparse
+import json
 
 import sys
 sys.path.append( '..' )
-import os, time
-import argparse
-
-import json
-from bs4 import BeautifulSoup
-
 import config
-from utilsDAWS import ops_data as ops
-from utilsDAWS import ops_file as rw
-from utilsDAWS.ops_thread import worker
 
 # parameters ----------------------------------------
 ### Windows
@@ -48,7 +47,7 @@ def dump_cookies( driver ):
 
 def creat_zombie( c ):
     print( "Doing: {}".format( c ) )
-    c = ops.clean_str( c ).replace( ' ', '_' )
+    c = val.clean_str( c ).replace( ' ', '_' )
 
     def log( c, u ):
         rw.write_to_log_text( r'{}{}'.format( config.path_data, r'log_{}.txt'.format( c ) ), "{} stops at page {}".format( c, u ) )
