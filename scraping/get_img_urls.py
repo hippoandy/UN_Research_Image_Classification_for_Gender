@@ -101,9 +101,9 @@ def operation( recreate ):
 
     ''' start to scrape the user profile pictures '''
     countries = open( config.path_countries, 'r' ).readlines()
-    work.trigger_worker( in_chunk=True,\
+    work.trigger_worker( in_chunk=False,\
         data=countries, work_funct=creat_zombie, result_to_file=False,
-        concurrent=concurrent, partition=partition, timeout=timeout )
+        concurrent=len(countries), partition=len(countries), timeout=config.timeout )
 
 # the main funcion
 if __name__ == '__main__':
