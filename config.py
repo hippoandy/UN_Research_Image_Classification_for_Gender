@@ -1,8 +1,9 @@
 
 
-path_data = './data/'
-path_img = 'imgs/'
-path_countries = './countries.txt'
+path_data = r'./data/'
+path_img = r'imgs/'
+path_driver = r'../drivers'
+path_countries = r'./countries.txt'
 
 base_url = 'https://www.freelancer.com/'
 
