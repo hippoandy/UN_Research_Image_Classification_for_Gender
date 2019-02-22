@@ -8,29 +8,40 @@ import pickle
 import os, time
 import argparse
 import json
+import platform
 
 import sys
 sys.path.append( '..' )
 import config
 
 # parameters ----------------------------------------
-### Windows
-path_driver = r'./chromedriver.exe'
-### macOS or Linux
-# path_driver = r'./chromedriver'
-
-## account login
-# login_data =  { 'username':'ycaho@ucdavis.edu', 'password':'Cepal2019' }
-login_data =  { 'username':'BF20A3C0@mail.com', 'password':'CFA793D1' }
-
 concurrent = config.concurrent
+
+driver_path = ''
 # ---------------------------------------- parameters
 
+def read_secret():
+    f = open( r'../{}'.format( 'secret.key' ) )
+    for l in f.readlines():
+        if( 'username' in l ):
+            username = val.clean_str( l.replace( 'username:', '' ).strip() )
+        elif( 'password' in l ):
+            password = val.clean_str( l.replace( 'password:', '' ).strip() )
+    return {
+        'username': username,
+        'password': password,
+    }
 
 def login():
-    driver = Chrome( path_driver )
+    if( platform.system() == 'Windows' ): ### Windows
+        driver_path = r'{}/chromedriver.exe'.format( config.path_driver )
+    else: ### macOS or Linux
+        driver_path = r'{}/chromedriver'.format( config.path_driver )
+
+    driver = Chrome( driver_path )
     driver.get( r'{}{}'.format( config.base_url, 'login' ) )
 
+    login_data = read_secret()
     for k in login_data.keys():
         box = driver.find_element_by_id( k )
         box.send_keys( login_data[ k ] )
@@ -52,7 +63,7 @@ def creat_zombie( c ):
     def log( c, u ):
         rw.write_to_log_text( r'{}{}'.format( config.path_data, r'log_{}.txt'.format( c ) ), "{} stops at page {}".format( c, u ) )
 
-    driver = Chrome( path_driver )
+    driver = Chrome( driver_path )
     # first load a page
     driver.get( config.base_url )
     # then load the cookie
