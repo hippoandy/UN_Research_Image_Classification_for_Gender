@@ -123,3 +123,6 @@ tensorboard_logs/
 *.7z
 *.zip
 *.tar
+
+# secret
+*.key
