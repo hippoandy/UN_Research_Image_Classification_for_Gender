@@ -10,6 +10,12 @@ url_login = base_url + 'login'
 user_pages = base_url + 'search/users/any_skill/{}/{}/'
 # ---------------------------------------------------- target urls
 
+# time settings --------------------------------------------------
+sleep_short = 1
+sleep_med = 3
+sleep_long = 10
+# -------------------------------------------------- time settings
+
 # selenium settings ----------------------------------------------
 f_cookie = 'cookies.pkl'
 
@@ -17,10 +23,6 @@ start = 0
 concurrent = 3
 partition = 3
 timeout = 10
-
-sleep_short = 1
-sleep_med = 3
-sleep_long = 10
 # ---------------------------------------------- selenium settings
 
 # Latin American countries available on Freelancer ---------------
