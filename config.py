@@ -1,13 +1,29 @@
-
-
+# path settings --------------------------------------------------
 path_data = r'./data/'
 path_img = r'imgs/'
 path_driver = r'./drivers'
+# -------------------------------------------------- path settings
 
+# target urls ----------------------------------------------------
 base_url = 'https://www.freelancer.com/'
 url_login = base_url + 'login'
 user_pages = base_url + 'search/users/any_skill/{}/{}/'
+# ---------------------------------------------------- target urls
 
+# selenium settings ----------------------------------------------
+f_cookie = 'cookies.pkl'
+
+start = 0
+concurrent = 3
+partition = 3
+timeout = 10
+
+sleep_short = 1
+sleep_med = 3
+sleep_long = 10
+# ---------------------------------------------- selenium settings
+
+# Latin American countries available on Freelancer ---------------
 countries = [
     'Antigua and Barbuda',
     'Aruba',
@@ -52,17 +68,4 @@ countries = [
     'Uruguay',
     'Venezuela',
 ]
-
-
-# selenium settings ----------------------------------------
-f_cookie = 'cookies.pkl'
-
-start = 0
-concurrent = 3
-partition = 3
-timeout = 10
-
-sleep_short = 1
-sleep_med = 3
-sleep_long = 10
-# ---------------------------------------- selenium settings
+# --------------- Latin American countries available on Freelancer
