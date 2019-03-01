@@ -2,7 +2,7 @@
 
 path_data = r'./data/'
 path_img = r'imgs/'
-path_driver = r'../drivers'
+path_driver = r'./drivers'
 path_countries = r'./countries.txt'
 
 base_url = 'https://www.freelancer.com/'
