@@ -5,7 +5,7 @@ from utilsDAWS.log import logger
 
 import urllib.request
 import os, glob
-import json, re, textwrap
+import json, re
 import pandas as pd
 import argparse
 
@@ -14,18 +14,11 @@ sys.path.append( '..' )
 import config
 
 # parameters ----------------------------------------
-path = config.path_data
-storage = ""
-mid_path = config.path_img
-f_data = r''
-f_urls = r'imgs*.json'
-
-partition = config.partition
-concurrent = config.concurrent
-timeout = config.timeout
+storage = r'{}/{}'.format( '../', config.path_img )
+f_log = r'debug.log'
 # ---------------------------------------- parameters
 
-l = logger()
+l = logger( fname=f_log )
 
 # function to download the files
 def download( u ):
@@ -35,7 +28,10 @@ def download( u ):
     except: l.commit( type='error', msg=f'Failed to obtain: {u}' )
 
 # creates the worker class and performs action
-def trigger( urls ):
+def trigger( urls, \
+    concurrent=config.concurrent, \
+    partition=config.concurrent, \
+    timeout=config.timeout ):
     work.trigger_worker( in_chunk=True,\
         data=urls, work_funct=download, result_to_file=False,
         concurrent=concurrent, partition=partition, timeout=timeout )
@@ -43,15 +39,28 @@ def trigger( urls ):
 # parse the pre-processed json files
 def parse_preprocess():
     urls = []
-    for n in glob.glob( r'{}{}'.format( path, f_urls ) ):
+    for n in glob.glob( r'{}/{}'.format( config.path_data, r'imgs*.json' ) ):
         tmp = json.loads( open( n, 'r' ).read() )
         if( not val.empty_struct( tmp ) ): urls += tmp
-    # starting the download
     if( not val.empty_struct( urls ) ): return urls
     else:
         print( 'No URLs to download, terminated the program......' )
         sys.exit( 0 )
-        
+
+# retry failed urs
+def retry( concurrent=config.concurrent, \
+    partition=config.partition, \
+    timeout=config.timeout ):
+    urls = []
+    for n in glob.glob( r'./{}'.format( f_log ) ):
+        content = open( n, 'r' ).readlines()
+        for l in content:
+            try:    url = re.findall( r'https?://(?:[-\w.\/]|(?:%[\da-fA-F]{2}))+', l )[ 0 ]
+            except: continue
+            urls.append( val.clean_str( url ) )
+    if( not val.empty_struct( urls ) ): return
+    trigger( urls, concurrent, partition, timeout )
+
 # the main funcion
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
@@ -70,9 +79,7 @@ if __name__ == '__main__':
     if( args[ 'concurrent' ] != None and args[ 'concurrent' ] <= 0 ): val_err_msg( '-c/--concurrent' )
     if( args[ 'timeout' ] != None and args[ 'timeout' ] <= 0 ): val_err_msg( '-t/--timeout' )
 
-    ### setting the parameters
     # create storage folder if not exist
-    storage = r'{}{}'.format( '../', mid_path )
     folder.mkdir_p( storage )
     # if not specified by user, use the default value
     partition = config.partition if( args[ 'partition' ] == None ) else args[ 'partition' ]
@@ -85,18 +92,18 @@ if __name__ == '__main__':
         f_data = input( "Enter the file name: " )
         df_all = None
         try:
-            for n in glob.glob( r'{}/{}'.format( path, f_data ) ):
+            for n in glob.glob( r'{}/{}'.format( config.path_data, f_data ) ):
                 df = pd.read_csv( n, header=0 )
                 if( df_all == None ): df_all = df
                 else: df_all.append( df )
         except:
-            print( textwrap.dedent(f'''
-                Data file "{f_data}" not exists!
-                Terminated the program!
-            '''))
+            print( f'''Data file "{f_data}" not exists! Terminating the program......''' )
             sys.exit( 1 )
         if( not df_all.empty ): urls = df[ 'profile_logo' ].tolist()
-        if( val.empty_struct( urls ) ): print( 'No URLs to download, terminated the program......' )
-        else: trigger( urls )
+        if( val.empty_struct( urls ) ): print( 'No URLs to download, terminating the program......' )
+        else: trigger( urls, concurrent, partition, timeout )
     # using the already exist json file to perform downloads
-    else: trigger( parse_preprocess() )
+    else: trigger( parse_preprocess(), concurrent, partition, timeout )
+
+    # retry failed urls
+    retry( concurrent, partition, timeout )
