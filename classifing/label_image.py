@@ -146,7 +146,7 @@ def trigger( header, files ):
     time.sleep( config.sleep_med )
     # merge the result
     rw.concat_csv_files( dir_files=config.path_data, files=r"*.csv", \
-        dir_result=config.path_data, result=r'gender_classification.csv' )
+        dir_result=config.path_data, result=r'genderized.csv' )
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
