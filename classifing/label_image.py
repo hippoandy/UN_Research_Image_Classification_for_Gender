@@ -17,6 +17,7 @@
 # ==============================================================================
 
 from utilsDAWS import value as val
+from utilsDAWS import rw
 from utilsDAWS.thread import work
 
 from __future__ import absolute_import
@@ -141,6 +142,11 @@ def trigger( header, files ):
         data=files, work_funct=process, result_to_file=True,
         output_name='genderized', output_type='csv', output_header=header, \
         concurrent=concurrent, partition=partition )
+    # wait for all the files be successfully committed
+    time.sleep( config.sleep_med )
+    # merge the result
+    rw.concat_csv_files( dir_files=config.path_data, files=r"*.csv", \
+        dir_result=config.path_data, result=r'gender_classification.csv' )
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
