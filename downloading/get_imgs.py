@@ -1,13 +1,12 @@
-from utilsDAWS import folder
 from utilsDAWS import value as val
+from utilsDAWS import folder
 from utilsDAWS.thread import work
 from utilsDAWS.log import logger
 
 import urllib.request
-import os, glob
+import argparse, os, glob
 import json, re
 import pandas as pd
-import argparse
 
 import sys
 sys.path.append( '..' )
