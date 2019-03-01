@@ -108,7 +108,7 @@ def operation( recreate ):
 # the main funcion
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
-    ap.add_argument( '-r', "--recreate", required=True, type=int, help="Re-create the cookies?" )
+    ap.add_argument( '-r', "--recreate", required=True, type=int, help="Re-create the auth cookies, (0/1)" )
     ap.add_argument( '-c', "--concurrent", type=int, help="Number of concurrent workers" )
     args = vars( ap.parse_args() )
 
