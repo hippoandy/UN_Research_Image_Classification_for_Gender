@@ -1,6 +1,8 @@
 from utilsDAWS import value as val
+from utilsDAWS import file
 from utilsDAWS import rw
 from utilsDAWS.thread import work
+from utilsDAWS.log import logger
 
 from seleniumrequests import Chrome
 from bs4 import BeautifulSoup
@@ -15,10 +17,11 @@ sys.path.append( '..' )
 import config
 
 # parameters ----------------------------------------
-concurrent = config.concurrent
-
+cookie_path = r"{}/{}".format( config.path_data, config.f_cookie )
 driver_path = ''
 # ---------------------------------------- parameters
+
+l = logger( fname='debug_scrape.log', mode='a+' )
 
 def read_secret():
     f = open( r'../{}'.format( 'secret.key' ) )
@@ -33,13 +36,8 @@ def read_secret():
     }
 
 def login():
-    if( platform.system() == 'Windows' ): ### Windows
-        driver_path = r'{}/chromedriver.exe'.format( config.path_driver )
-    else: ### macOS or Linux
-        driver_path = r'{}/chromedriver'.format( config.path_driver )
-
     driver = Chrome( driver_path )
-    driver.get( r'{}{}'.format( config.base_url, 'login' ) )
+    driver.get( config.url_login )
 
     login_data = read_secret()
     for k in login_data.keys():
@@ -51,27 +49,21 @@ def login():
     btn.click()
     time.sleep( config.sleep_long )
 
-    return driver
-
-def dump_cookies( driver ):
-    pickle.dump( driver.get_cookies(), open( r"{}{}".format( config.path_data, config.f_cookie ), "wb" ) )
+    # dump the cookies
+    pickle.dump( driver.get_cookies(), open( cookie_path, "wb" ) )
 
 def creat_zombie( c ):
-    print( "Doing: {}".format( c ) )
+    print( f'''Processing: {c}''' )
     c = val.clean_str( c ).replace( ' ', '_' )
-
-    def log( c, u ):
-        rw.write_to_log_text( r'{}{}'.format( config.path_data, r'log_{}.txt'.format( c ) ), "{} stops at page {}".format( c, u ) )
-
     driver = Chrome( driver_path )
     # first load a page
     driver.get( config.base_url )
     # then load the cookie
-    cookies = pickle.load( open( r"{}{}".format( config.path_data, config.f_cookie ), "rb") )
+    cookies = pickle.load( open( cookie_path, "rb") )
     for cookie in cookies: driver.add_cookie( cookie )
 
     tars = []
-    with open( r'{}pages_{}.json'.format( config.path_data, c ), 'r' ) as f:
+    with open( r'{}/pages_{}.json'.format( config.path_data, c ), 'r' ) as f:
         urls = json.loads( f.read() )
         for u in urls:
             driver.get( u )
@@ -81,34 +73,20 @@ def creat_zombie( c ):
             # imgs = soup.findAll( 'img', class_='ImageThumbnail-image' )
             imgs = soup.findAll( 'img', class_='info-card-media-user' )
             if( len( imgs ) == 0 ):
-                log( c, u )
+                l.commit( type='error', msg=f'Failed! Country: {c}, url: {u}' )
                 break
             # store the image urls
             for e in imgs: tars.append( e[ 'src' ] )
 
     # commit the result to file
-    rw.write_to_json( r'{}{}'.format( config.path_data, 'imgs_{}.json'.format( c ) ), tars )
+    rw.write_to_json( r'{}/{}'.format( config.path_data, 'imgs_{}.json'.format( c ) ), tars )
     # safely quit the driver
     driver.quit()
 
-def operation( recreate ):
-    ''' create login cookies '''
-    if( recreate ):
-        driver = login()
-        time.sleep( config.sleep_long )
-        dump_cookies( driver )
-        time.sleep( config.sleep_med )
-
-    ''' start to scrape the user profile pictures '''
-    countries = open( config.path_countries, 'r' ).readlines()
-    work.trigger_worker( in_chunk=False,\
-        data=countries, work_funct=creat_zombie, result_to_file=False,
-        concurrent=len(countries), partition=len(countries), timeout=config.timeout )
-
-# the main funcion
+# the main function
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
-    ap.add_argument( '-r', "--recreate", required=True, type=int, help="Re-create the auth cookies, (0/1)" )
+    ap.add_argument( '-r', "--recreate", required=False, type=int, help="Re-create the auth cookies, (0/1)" )
     ap.add_argument( '-c', "--concurrent", type=int, help="Number of concurrent workers" )
     args = vars( ap.parse_args() )
 
@@ -117,9 +95,33 @@ if __name__ == '__main__':
 
     # error handling
     if( args[ 'recreate' ] < 0 or args[ 'recreate' ] > 2 ): val_err_msg( '-r/--recreate' )
-
-    ### setting the parameters
-    concurrent = concurrent if( args[ 'concurrent' ] == None ) else args[ 'concurrent' ]
+    # setting the parameters
+    concurrent = config.concurrent if( args[ 'concurrent' ] == None ) else args[ 'concurrent' ]
 
     # start the operation
-    operation( args[ 'recreate' ] )
+    ''' set the driver path '''
+    if( platform.system() == 'Windows' ): ### Windows
+        driver_path = r'{}/chromedriver.exe'.format( config.path_driver )
+    else: ### macOS or Linux
+        driver_path = r'{}/chromedriver'.format( config.path_driver )
+
+    ''' create credential cookies '''
+    if( args[ 'recreate' ] or not file.is_file_exist( cookie_path ) ): login()
+
+    ''' create page urls '''
+    limit = 1000
+    # create page urls
+    for c in config.countries:
+        urls = []
+        c = val.clean_str( c )
+        for i in range( 1, limit ):
+            c = c.replace( ' ', '_' )
+            urls.append( config.user_pages.format( c.lower(), i ) )
+        rw.write_to_json( r'{}/{}'.format( config.path_data, f'pages_{c}.json' ), urls )
+    # wait for the data to be successfully committed
+    time.sleep( config.sleep_med )
+
+    ''' start to scrape the user profile pictures '''
+    work.trigger_worker( in_chunk=True,\
+        data=config.countries, work_funct=creat_zombie, result_to_file=False,
+        concurrent=concurrent, partition=concurrent, timeout=config.timeout )
