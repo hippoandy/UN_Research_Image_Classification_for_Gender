@@ -41,7 +41,7 @@ Along with this manual, a file named `programs_image.zip` which stores the progr
 C:\Users\<user_name>\Documents\
 # Change <user_name> to your computer username.
 ```
-After the extraction, a folder named `UN_Research_Image_Classification_for_Gender` should be available under `Documents` folder as follow:
+After the extraction, a folder named `UN_Research_Image_Classification_for_Gender-master` should be available under `Documents` folder as follow:
 
 ![Repo. Deployment](./images/repo-extraction.png)
 
@@ -308,13 +308,13 @@ For labor market analysis, one of the objectives is to provide **gender-related 
 
     a. Copy the file `freelancer_supply_20190204.csv` into the path:
     ```bash
-    C:\Users\<user_name>\Documents\UN_Research_Image_Classification_for_Gender\labor_market\gender_classification\downloading
+    C:\Users\<user_name>\Documents\UN_Research_Image_Classification_for_Gender-master\labor_market\gender_classification\downloading
     # Change <user_name> to the computer username.
     ```
 
     b. Open a **Windows Powershell**, then:
     ```bash
-    $ cd 'C:\Users\<user_name>\Documents\UN_Research_Image_Classification_for_Gender\labor_market\gender_classification\downloading'
+    $ cd 'C:\Users\<user_name>\Documents\UN_Research_Image_Classification_for_Gender-master\labor_market\gender_classification\downloading'
     # Change <user_name> to the computer username. Then, run the program:
     $ python run.py -u 1
     ```
@@ -328,7 +328,7 @@ For labor market analysis, one of the objectives is to provide **gender-related 
 
     a. Create **1** folder named `imgs` under path:
     ```bash
-    C:\Users\<user_name>\Documents\UN_Research_Image_Classification_for_Gender\labor_market\gender_classification\
+    C:\Users\<user_name>\Documents\UN_Research_Image_Classification_for_Gender-master\labor_market\gender_classification\
     # Change <user_name> to the computer username.
     ```
     
@@ -338,7 +338,7 @@ For labor market analysis, one of the objectives is to provide **gender-related 
 
     d. Open a **Windows Powershell**, navigate to the program folder by:
     ```bash
-    $ cd C:\Users\<user_name>\Documents\UN_Research_Image_Classification_for_Gender\labor_market\gender_classification\classifying
+    $ cd C:\Users\<user_name>\Documents\UN_Research_Image_Classification_for_Gender-master\labor_market\gender_classification\classifying
     # Change <user_name> to the computer username.
     ```
 
