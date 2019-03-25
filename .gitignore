@@ -126,3 +126,6 @@ tensorboard_logs/
 
 # secret
 *.key
+
+# not for everything for instruction manual
+!manual/images/*.png
