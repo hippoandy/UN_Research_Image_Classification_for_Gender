@@ -55,7 +55,7 @@ If the computer does not have a compression software available, `7-zip` is a rec
 
 Please extract the content of `requirements_image.zip`. The structure is as follow:
 ```txt
-+-- Dataset for Image Classification/
++-- Dataset/
 |   +-- training_imgs/
 |   |   +-- female/
 |   |   |   +-- (many image files)
@@ -334,7 +334,7 @@ For labor market analysis, one of the objectives is to provide **gender-related 
     
     b. Place the images which to be classified into that newly created folder.
 
-    c. Under extracted folder of `requirements_image.zip`, the folder `Dataset for Image Classification` contains a folder `training_imgs`. Copy that folder into the same path given above. The folder `training_imgs` has 3 sub-folders, **female**, **male**, and **unknown**. Each of the sub-folders contains nearly ***1000*** pre-classified images. Those images are the training dataset for machine learning model training.
+    c. Under extracted folder of `requirements_image.zip`, the folder `Dataset` contains a folder `training_imgs`. Copy that folder into the same path given above. The folder `training_imgs` has 3 sub-folders, **female**, **male**, and **unknown**. Each of the sub-folders contains nearly ***1000*** pre-classified images. Those images are the training dataset for machine learning model training.
 
     d. Open a **Windows Powershell**, navigate to the program folder by:
     ```bash
