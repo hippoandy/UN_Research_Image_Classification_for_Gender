@@ -43,7 +43,11 @@ C:\Users\<user_name>\Documents\
 ```
 After the extraction, a folder named `UN_Research_Image_Classification_for_Gender-master` should be available under `Documents` folder as follow:
 
-![Repo. Deployment](./images/repo-extraction.png)
+![Repo. Deployment (1)](./images/repo-extraction-1.png)
+
+The following content should be available:
+
+![Repo. Deployment (2)](./images/repo-extraction-2.png)
 
 <div style="page-break-after: always;"></div>
 
@@ -138,6 +142,29 @@ Please extract the content of `requirements_image.zip`. The structure is as foll
     e. If no error message shows up, type `exit()` to quit the program or simply close the window.
 
     ![Test Python (5)](./images/test-python-2.png)
+
+A file named `requirements.txt` is located within the repository for required Python library installations. Please follow:
+
+3. Navigate to the repository folder through:
+    ```bash
+    $ cd 'C:\Users\<user_name>\Documents\UN_Research_Image_Classification_for_Gender-master'
+    # Change <user_name> to the computer username. Do not type in the `$` sign. Hit "Enter" after the command is typed.
+    ```
+    ![Navigate to Repo. (1)](./images/navigate-to-repo-1.png)
+
+4. Use command `ls` to check the content of the folder. The following should be seen:
+    ```bash
+    $ ls
+    # Hit "Enter" after the command is typed.
+    ```
+    ![Navigate to Repo. (2)](./images/navigate-to-repo-2.png)
+
+4. Install the required Python libraries using the command:
+    ```bash
+    $ pip install -r .\requirements.txt
+    # Hit "Enter" and wait until the process complete.
+    ```
+    ![Install Python lib.](./images/install-python-lib-1.png)
 
 <div style="page-break-after: always;"></div>
 
