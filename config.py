@@ -1,7 +1,7 @@
 # path settings --------------------------------------------------
 path_data = r'./data/'
 path_img = r'imgs/'
-path_driver = r'./drivers'
+path_driver = r'../../'
 # -------------------------------------------------- path settings
 
 # target urls ----------------------------------------------------

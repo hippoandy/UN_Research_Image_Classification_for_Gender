@@ -91,7 +91,7 @@ if __name__ == '__main__':
         f_data = input( "Enter the file name: " )
         df_all = None
         try:
-            for n in glob.glob( r'{}/{}'.format( config.path_data, f_data ) ):
+            for n in glob.glob( r'./{}'.format( f_data ) ):
                 df = pd.read_csv( n, header=0 )
                 if( df_all == None ): df_all = df
                 else: df_all.append( df )
