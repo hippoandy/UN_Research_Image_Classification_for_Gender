@@ -1,4 +1,4 @@
-### gender_classification
+### Gender Classification using Images
 
 > Requirement: ***A Server with a modern NVIDIA GPU available & tensorflow-gpu lib. for Python available***
 
